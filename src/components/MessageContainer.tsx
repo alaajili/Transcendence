@@ -7,7 +7,6 @@ type props = {
 };
 
 const MessageContainer = ({ message, isSentByMe, img }: props) => {
-    console.log(img);
     return (
         <>
             {isSentByMe ? (

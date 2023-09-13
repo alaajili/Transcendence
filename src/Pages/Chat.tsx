@@ -16,6 +16,12 @@ import axios from "axios";
 import "../styles/AddChannel.css";
 import "../styles/Chat.css";
 
+interface messagedto{
+    message: string;
+    isSentByMe: boolean;
+    img: string;
+    sender: number;
+}
 const Chat = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [channels, setChannels] = useState<
@@ -53,6 +59,7 @@ const Chat = () => {
             const dto = {
                 id: selectedChannel?.id,
                 message: inputValue.trim(),
+                sender: -1,
             };
             let ret = socket?.emit("createMessage", dto, {
                 withCredentials: true,
@@ -177,6 +184,7 @@ const Chat = () => {
 
     useEffect(() => {
         async function getandSetmsgchannel() {
+            console.log("LOLL");
             if (selectedChannel?.id !== undefined) {
                 let id: number = 0;
                 const res = await whoami();
@@ -224,18 +232,18 @@ const Chat = () => {
             });
         }
         setSocket(socketRef.current);
-        const ret = socket?.on("newmessage", async (dto: any) => {
-            console.log("GOT HERE");
+        const ret = socket?.on("newmessage", async (dto: messagedto) => {
+            console.log("-------------->", dto);
             setMessages((prevMessages) => [
                 ...prevMessages,
                 {
-                    message: dto[0].message,
+                    message: dto.message,
                     isSentByMe: false,
-                    img: "http://localhost:3000/" + 1 + ".png",
+                    img: "http://localhost:3000/" + dto.sender + ".png",
                 },
             ]);
         });
-    }, [selectedChannel]);
+    }, [socketRef.current]);
 
     return (
         <div className="parent flex flex-row justify-center items-center gap-[1vw] h-screen max-sm:flex-col max-md:flex-col">
