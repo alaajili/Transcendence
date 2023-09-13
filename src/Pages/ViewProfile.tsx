@@ -43,7 +43,6 @@ const ViewProfile = () => {
     const [games, setGames] = useState<Game[]>([]);
 
     const getUserInfo = async () => {
-        console.log("user infos and friendship");
         const map = new Map<number, UserInfo>();
 
         const queryParams = new URLSearchParams(window.location.search);
@@ -68,22 +67,14 @@ const ViewProfile = () => {
                 loses: data.user.losses,
                 games: (data.user.wins + data.user.losses)
             });
-            console.log("map ==> \n",map);
             const newMAp = new Map<number, Player>(map);
-            console.log("newMap ==> \n",map);
             newMAp.set(userid, {
                 photo: data.user.photo,
                 username: data.user.username
             });
-            console.log(newMAp);
             setMap(newMAp);
         });
-    };
 
-    const getUserGames = async () => {
-        const queryParams = new URLSearchParams(window.location.search);
-        let id = queryParams.get("id");
-        if (id == null) id = "0";
         await axios.get(
             `http://localhost:3000/users/usergames?id=${id}`, {
                 withCredentials: true
@@ -108,12 +99,10 @@ const ViewProfile = () => {
 
     useEffect(() => {
         getUserInfo();
-        getUserGames();
     }, []);
     let navigate = useNavigate();
 
     useEffect(() => {
-        console.log(games);
         const promises: any[] = [];
 
         {games.map( game => {
