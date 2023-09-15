@@ -364,10 +364,10 @@ const Dashboard = () => {
                                             </p>
                                         </div>
                                     </Link>
-                                    <Link to="/game">
+                                    <Link to="/practice">
                                         <div className="card hard-mode flex justify-center items-center">
                                             <p className="font-bold font-satoshi lowercase text-[.8vw] max-sm:text-[1.2vh] max-md:text-[1.2vh] max-lg:text-[1.2vh]">
-                                                Hard
+                                                Practice
                                             </p>
                                         </div>
                                     </Link>

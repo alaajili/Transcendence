@@ -75,7 +75,6 @@ const ViewProfile = () => {
     }
 
     const getUserInfo = async () => {
-        const map = new Map<number, UserInfo>();
 
         const queryParams = new URLSearchParams(window.location.search);
         let id = queryParams.get("id");
@@ -108,6 +107,14 @@ const ViewProfile = () => {
             getFriendStatus(data.friendShip);
         });
 
+    }
+
+
+    const getUserGames = async () => {
+
+        const queryParams = new URLSearchParams(window.location.search);
+        let id = queryParams.get("id");
+        if (id == null) id = "0";
 
         await axios.get(
             `http://localhost:3000/users/usergames?id=${id}`, {
@@ -133,6 +140,7 @@ const ViewProfile = () => {
 
     useEffect(() => {
         getUserInfo();
+        getUserGames();
     }, []);
     let navigate = useNavigate();
 
@@ -177,11 +185,11 @@ const ViewProfile = () => {
             { receiver: user?.id },
             { withCredentials: true }
         );
+        getUserInfo();
     };
 
     const acceptFriendRequest = async () => {
-        console.log();
-        
+
         await axios.post(
             "http://localhost:3000/users/fillfriendrequest",
             {
@@ -190,6 +198,19 @@ const ViewProfile = () => {
             },
             { withCredentials: true }
         );
+        getUserInfo();
+    }
+
+    const declineFriendRequest = async () => {
+        await axios.post(
+            "http://localhost:3000/users/fillfriendrequest",
+            {
+                id: friendShipId,
+                response: false
+            },
+            { withCredentials: true }
+        );
+        getUserInfo();
     }
 
 
@@ -229,7 +250,7 @@ const ViewProfile = () => {
                             <>
                             <button
                                 className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
-                                onClick={addFriend}
+                                onClick={declineFriendRequest}
                             >
                                 <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
                                     Reject

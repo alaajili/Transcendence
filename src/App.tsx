@@ -11,6 +11,7 @@ import AddChannel from "./components/AddChannel";
 import "./App.css";
 import Game from "./Game/Game";
 import { setOnline, recieveNotification } from "./components/mainGateway";
+import Practice from "./Game/Practice";
 
 const App = () => {
     setOnline();
@@ -23,6 +24,7 @@ const App = () => {
                 <Route path="/chat" element={<Chat />} />
                 <Route path="/gamemode" element={<GameMode />} />
                 <Route path="/game" element={<Game />} />
+                <Route path="/practice" element={<Practice />} />
                 <Route path="/home" element={<Dashboard />} />
                 <Route
                     path="/add-channel"
