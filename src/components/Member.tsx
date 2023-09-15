@@ -10,6 +10,7 @@ interface MemberProps {
     username: string;
     img: string;
     isAdmin: boolean;
+    id: number;
 }
 
 const Member = ({ username, img, isAdmin }: MemberProps) => {

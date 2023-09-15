@@ -8,7 +8,7 @@ import {
     BsSendFill,
 } from "react-icons/bs";
 import { FiPlus } from "react-icons/fi";
-import { useEffect, useRef, useState } from "react";
+import { MemoExoticComponent, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { MessageContainer, AddChannel, Member } from "./index";
 import { Socket, io } from "socket.io-client";
@@ -21,6 +21,12 @@ interface messagedto {
     isSentByMe: boolean;
     img: string;
     sender: number;
+}
+interface MemberProps {
+    username: string;
+    img: string;
+    isAdmin: boolean;
+    id: number;
 }
 const Chat = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -35,6 +41,7 @@ const Chat = () => {
             img: string;
         }[]
     >([]);
+    const [member, setMember] = useState<MemberProps[]>([])
     const [selectedChannel, setSelectedChannel] = useState<{
         name: string;
         img: string | File;
@@ -263,7 +270,40 @@ const Chat = () => {
             ]);
         });
     }, [socketRef.current]);
+    async function getmemeberoom (roomID: number) {
+        const res = await axios.get("http://localhost:3000/chat/roomMemebers?id=" + roomID, {
+            withCredentials: true,
+        })
+        return res.data;
+    }
+    const setMembers = async() => {
 
+        // const newmember = [...member, getmemeber]
+        let getmember: any;
+        if(selectedChannel?.id != undefined)
+        {
+            getmember = await getmemeberoom(selectedChannel?.id);
+            let members : MemberProps[] = [];
+            console.log(getmember)
+            getmember.members.forEach((element: {username: string, id: number}) => {
+                const newmember : MemberProps= {
+                    id: element.id,
+                    username: element.username,
+                    img: "http://localhost:3000/" + element.id + ".png",
+                    isAdmin: false,
+                }
+                members = [...members, newmember];
+                getmember.admins.find((admin: any)=> {
+                    if(admin.userId !== element.id)
+                        newmember.isAdmin = true
+                })
+            });
+            setMember(members);
+        }
+    }
+    useEffect(()=>{
+        setMembers();
+    },[selectedChannel])
     return (
         <div className="parent flex flex-row justify-center items-center gap-[1vw] h-screen max-sm:flex-col max-md:flex-col">
             <div className="child-container-1">
@@ -333,11 +373,15 @@ const Chat = () => {
                                 <span></span>
                                 <ul className="menuItem member-menu absolute w-[30vw] h-[91vh] pt-[3vw] pr-[9vw] pl-[1vw]">
                                     <li className="h-full overflow-y-scroll no-scrollbar mt-[3.3vh] pb-[5.5vh]">
-                                        <Member
-                                            username="yagnaou"
-                                            img={Apollo}
-                                            isAdmin={true}
-                                        />
+                                        {
+                                            member.map((user:MemberProps, idx)=>(<Member
+                                                username={user.username}
+                                                img={user.img}
+                                                isAdmin={user.isAdmin}
+                                                id={user.id}
+                                                key={idx}
+                                            />))
+                                        }
                                     </li>
                                 </ul>
                             </div>
