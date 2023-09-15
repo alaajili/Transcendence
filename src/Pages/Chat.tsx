@@ -184,7 +184,6 @@ const Chat = () => {
 
     useEffect(() => {
         async function getandSetmsgchannel() {
-            console.log("LOLL");
             if (selectedChannel?.id !== undefined) {
                 let id: number = 0;
                 const res = await whoami();
