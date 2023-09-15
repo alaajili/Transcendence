@@ -1,10 +1,13 @@
 import {
     BsFillChatSquareTextFill,
+    BsFillCheckCircleFill,
     BsGithub,
     BsInstagram,
     BsLinkedin,
+    BsPersonCheckFill,
     BsPersonFillAdd,
     BsPersonFillSlash,
+    BsPersonXFill,
 } from "react-icons/bs";
 import { useEffect, useState } from "react";
 import "../styles/ViewProfile.css";
@@ -37,13 +40,41 @@ interface Game {
     type: string;
 }
 
+enum FriendStatus {
+    NONE,
+    PENDING_SENT,
+    PENDING_RECIEVED,
+    FRIENDS
+}
+
 const ViewProfile = () => {
     const [user, setUser] = useState<UserInfo>();
     const [map, setMap] = useState(new Map<number, Player>());
     const [games, setGames] = useState<Game[]>([]);
+    const [friendStatus, setFriendStatus] = useState<FriendStatus>();
+    const [friendShipId, setFriendShipId] = useState<number>();
+
+    const getFriendStatus = async (friendShip: any) => {
+        console.log("I am here");
+        if (!friendShip.sent && !friendShip.recieved) {
+            setFriendStatus(FriendStatus.NONE);
+            console.log("no friendship relation");
+        } else if (friendShip.sent && friendShip.sent.status === "PENDING") {
+            setFriendStatus(FriendStatus.PENDING_SENT);
+            console.log("sent pending");
+        } else if (friendShip.recieved && friendShip.recieved.status === "PENDING") {
+            setFriendStatus(FriendStatus.PENDING_RECIEVED);
+            console.log("recived pending");
+        } else {
+            setFriendStatus(FriendStatus.FRIENDS);
+            console.log("friends");
+        }
+
+        if (friendShip.sent) { setFriendShipId(friendShip.sent.id); }
+        else if (friendShip.recieved) { setFriendShipId(friendShip.recieved.id); }
+    }
 
     const getUserInfo = async () => {
-        console.log("user infos and friendship");
         const map = new Map<number, UserInfo>();
 
         const queryParams = new URLSearchParams(window.location.search);
@@ -68,22 +99,16 @@ const ViewProfile = () => {
                 loses: data.user.losses,
                 games: (data.user.wins + data.user.losses)
             });
-            console.log("map ==> \n",map);
             const newMAp = new Map<number, Player>(map);
-            console.log("newMap ==> \n",map);
             newMAp.set(userid, {
                 photo: data.user.photo,
                 username: data.user.username
             });
-            console.log(newMAp);
             setMap(newMAp);
+            getFriendStatus(data.friendShip);
         });
-    };
 
-    const getUserGames = async () => {
-        const queryParams = new URLSearchParams(window.location.search);
-        let id = queryParams.get("id");
-        if (id == null) id = "0";
+
         await axios.get(
             `http://localhost:3000/users/usergames?id=${id}`, {
                 withCredentials: true
@@ -108,12 +133,10 @@ const ViewProfile = () => {
 
     useEffect(() => {
         getUserInfo();
-        getUserGames();
     }, []);
     let navigate = useNavigate();
 
     useEffect(() => {
-        console.log(games);
         const promises: any[] = [];
 
         {games.map( game => {
@@ -156,13 +179,94 @@ const ViewProfile = () => {
         );
     };
 
+    const acceptFriendRequest = async () => {
+        console.log();
+        
+        await axios.post(
+            "http://localhost:3000/users/fillfriendrequest",
+            {
+                id: friendShipId,
+                response: true
+            },
+            { withCredentials: true }
+        );
+    }
+
 
     return (
         <div className="parent flex justify-center items-center h-screen gap-[1vw] max-sm:gap-[3vw] max-sm:flex-col max-md:flex-col max-md:my-[2vh]">
             <div className="child-container-1">
                 <div className="container-1 font-satoshi text-white w-[18vw] h-[90vh] max-sm:w-[80vw] max-sm:h-[50vh] max-md:w-[80vw] max-md:h-[50vh] flex flex-col justify-center items-center relative">
                     <div className="flex flex-row gap-[1vw] max-sm:gap-[3vw] max-md:gap-[3vw] items-center justify-center absolute top-[5.5vw] max-sm:top-[5.5vw] max-md:top-[5vw]">
-                        <button
+                        {(friendStatus === FriendStatus.FRIENDS) ?
+                        (
+                            <button
+                                className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
+                                onClick={addFriend}
+                            >
+                                <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
+                                    remove
+                                    <br />
+                                    {user?.username}
+                                </span>
+                                <BsPersonXFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
+                            </button> 
+                        ) : (friendStatus === FriendStatus.PENDING_SENT) ?
+                        (
+                            <button
+                                className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
+                                onClick={addFriend}
+                            >
+                            <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
+                                remove friend request
+                                {/* <br /> */}
+                                {/* {user?.username} */}
+                            </span>
+                            <BsPersonXFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
+                            </button> 
+                        ) : (friendStatus === FriendStatus.PENDING_RECIEVED) ?
+                        (
+                            <>
+                            <button
+                                className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
+                                onClick={addFriend}
+                            >
+                                <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
+                                    Reject
+                                    <br />
+                                    {user?.username}
+                                </span>
+                                <BsPersonXFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
+                            </button>
+                            <button
+                                className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
+                                onClick={acceptFriendRequest}
+                            >
+                                <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
+                                    Accept
+                                    <br />
+                                    {user?.username}
+                                </span>
+                                <BsPersonCheckFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
+                            </button>
+                            </>
+                        ) :
+                        (
+                            <button
+                                className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
+                                onClick={addFriend}
+                            >
+                                <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
+                                    Add
+                                    <br />
+                                    {user?.username}
+                                </span>
+                                <BsPersonFillAdd className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
+                            </button>
+
+                        )
+                        }
+                        {/* <button
                             className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
                             onClick={addFriend}
                         >
@@ -173,6 +277,29 @@ const ViewProfile = () => {
                             </span>
                             <BsPersonFillAdd className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
                         </button>
+                        <button
+                            className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
+                            onClick={acceptFriendRequest}
+                        >
+                            <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
+                                Accept
+                                <br />
+                                {user?.username}
+                            </span>
+                            <BsPersonCheckFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
+                        </button>
+                        <button
+                            className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
+                            onClick={addFriend}
+                        >
+                            <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
+                                Reject
+                                <br />
+                                {user?.username}
+                            </span>
+                            <BsPersonXFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
+                        </button> */}
+                       
                         <button
                             className="btn-2 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
                             onClick={CreateaDmmsg} 
