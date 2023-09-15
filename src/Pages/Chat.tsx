@@ -10,13 +10,13 @@ import {
 import { FiPlus } from "react-icons/fi";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { MessageContainer, AddChannel } from "./index";
+import { MessageContainer, AddChannel, Member } from "./index";
 import { Socket, io } from "socket.io-client";
 import axios from "axios";
 import "../styles/AddChannel.css";
 import "../styles/Chat.css";
 
-interface messagedto{
+interface messagedto {
     message: string;
     isSentByMe: boolean;
     img: string;
@@ -32,7 +32,7 @@ const Chat = () => {
         {
             message: string;
             isSentByMe: boolean;
-            img: string,
+            img: string;
         }[]
     >([]);
     const [selectedChannel, setSelectedChannel] = useState<{
@@ -111,7 +111,7 @@ const Chat = () => {
         } catch (error) {
             console.error(error);
         }
-    };
+    }
     async function getChannelmsg(id: any) {
         try {
             const res = await axios.get(
@@ -124,7 +124,7 @@ const Chat = () => {
         } catch (error) {
             console.log(error);
         }
-    };
+    }
     const getimg = async (roomid: number) => {
         const res = await axios.get(
             "http://localhost:3000/" + roomid + "room.png",
@@ -140,16 +140,19 @@ const Chat = () => {
         });
     };
     async function getdminfos(id: number) {
-        const res = await axios.get("http://localhost:3000/chat/getdminfos?id=" + id, {
-            withCredentials: true,
-        })
+        const res = await axios.get(
+            "http://localhost:3000/chat/getdminfos?id=" + id,
+            {
+                withCredentials: true,
+            }
+        );
         const room = {
             name: res.data.name,
             img: res.data.photo,
             id: res.data.id,
-        }
+        };
         return room;
-    };
+    }
     const Getmyrooms = async () => {
         const rooms = await getRoomChannels();
         let newchannel: any[] = [];
@@ -163,15 +166,16 @@ const Chat = () => {
                 };
                 newchannel = [...newchannel, room];
                 setChannels(newchannel);
-            }
-            else {
+            } else {
                 const dm = await getdminfos(element.id);
                 newchannel = [...newchannel, dm];
                 setChannels(newchannel);
             }
         });
-    }
-    useEffect(()=>{Getmyrooms()},[]);
+    };
+    useEffect(() => {
+        Getmyrooms();
+    }, []);
     useEffect(() => {
         // Scroll to the bottom when a new message is added
         if (messagesContainerRef.current) {
@@ -194,14 +198,30 @@ const Chat = () => {
                     isSentByMe: boolean;
                     img: string;
                 }[] = [];
-                const messagesres = await getChannelmsg(selectedChannel?.id)
+                const messagesres = await getChannelmsg(selectedChannel?.id);
                 const msgs = messagesres;
-                for(let i = 0; i < msgs.length; i++) {
+                for (let i = 0; i < msgs.length; i++) {
                     if (msgs[i].senderId === id) {
-                        messages = [...messages, { message: msgs[i].content, isSentByMe: true,  img: ""}]
-                    }
-                    else {
-                        messages = [...messages, { message: msgs[i].content, isSentByMe: false, img: "http://localhost:3000/" + msgs[i].senderId + ".png" }]
+                        messages = [
+                            ...messages,
+                            {
+                                message: msgs[i].content,
+                                isSentByMe: true,
+                                img: "",
+                            },
+                        ];
+                    } else {
+                        messages = [
+                            ...messages,
+                            {
+                                message: msgs[i].content,
+                                isSentByMe: false,
+                                img:
+                                    "http://localhost:3000/" +
+                                    msgs[i].senderId +
+                                    ".png",
+                            },
+                        ];
                     }
                 }
                 setMessages(messages);
@@ -216,7 +236,7 @@ const Chat = () => {
             withCredentials: true,
         });
         return me.data;
-    };
+    }
 
     const getSelectedChannel = async (channel: {
         name: string;
@@ -263,10 +283,11 @@ const Chat = () => {
                         {channels.map((channel, idx) => (
                             <div
                                 key={idx}
-                                className={`channel flex relative top-0 items-center px-[1vw] max-sm:px-[3vw] max-md:px-[3vw] scroll-auto h-[8vh] max-sm:h-[5vh] max-md:h-[5vh] hover:cursor-pointer ${selectedChannel === channel
+                                className={`channel flex relative top-0 items-center px-[1vw] max-sm:px-[3vw] max-md:px-[3vw] scroll-auto h-[8vh] max-sm:h-[5vh] max-md:h-[5vh] hover:cursor-pointer ${
+                                    selectedChannel === channel
                                         ? "active-channel"
                                         : ""
-                                    }`}
+                                }`}
                                 onClick={() => setSelectedChannel(channel)}
                             >
                                 <img
@@ -313,45 +334,11 @@ const Chat = () => {
                                 <span></span>
                                 <ul className="menuItem member-menu absolute w-[30vw] h-[91vh] pt-[3vw] pr-[9vw] pl-[1vw]">
                                     <li className="h-full overflow-y-scroll no-scrollbar mt-[3.3vh] pb-[5.5vh]">
-                                        <div className="container-1 flex justify-between items-center p-[.6vw]">
-                                            <Link to="/view-profile">
-                                                <div className="flex justify-between items-center gap-[.6vw] max-sm:gap-[2vw] max-md:gap-[2vw] max-lg:gap-[2vw]">
-                                                    <img
-                                                        className="w-[2.5vw] h-[2.5vw] max-sm:w-[7vw] max-sm:h-[7vw] max-md:w-[4vw] max-md:h-[4vw] max-lg:w-[4vw] max-lg:h-[4vw] rounded-full"
-                                                        src={Apollo}
-                                                    />
-                                                    <p className="font-satoshi font-medium hover:underline text-[.9vw] max-sm:text-[1vh] max-md:text-[1.1vh] max-lg:text-[1.1vh]">
-                                                        username
-                                                    </p>
-                                                </div>
-                                            </Link>
-                                            <div className="flex items-center justify-center gap-[.8vw]">
-                                                <button>
-                                                    <BsFillVolumeMuteFill
-                                                        className="text-[1.8vw] p-1 cursor-pointer"
-                                                        title="mute"
-                                                    />
-                                                </button>
-                                                <button>
-                                                    <BsPersonFillSlash
-                                                        className="text-[1.5vw] p-1 cursor-pointer"
-                                                        title="block"
-                                                    />
-                                                </button>
-                                                <button>
-                                                    <BsPersonFillDash
-                                                        className="text-[1.5vw] p-1 cursor-pointer"
-                                                        title="ban"
-                                                    />
-                                                </button>
-                                                <button>
-                                                    <BsFillLightningChargeFill
-                                                        className="text-[1.5vw] p-1 cursor-pointer"
-                                                        title="set as admin"
-                                                    />
-                                                </button>
-                                            </div>
-                                        </div>
+                                        <Member
+                                            username="yagnaou"
+                                            img={Apollo}
+                                            isAdmin={true}
+                                        />
                                     </li>
                                 </ul>
                             </div>
@@ -370,7 +357,6 @@ const Chat = () => {
                                         message={message.message}
                                         isSentByMe={message.isSentByMe}
                                         img={message.img}
-
                                     />
                                 ))}
                             </div>
