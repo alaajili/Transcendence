@@ -115,7 +115,7 @@ const Chat = () => {
     async function getChannelmsg(id: any) {
         try {
             const res = await axios.get(
-                "http://localhost:3000/chat/getroomsmgs?id=" + id,
+                "http://localhost:3000/chat/getroomsmsg?id=" + id,
                 {
                     withCredentials: true,
                 }
@@ -195,7 +195,7 @@ const Chat = () => {
                     img: string;
                 }[] = [];
                 const messagesres = await getChannelmsg(selectedChannel?.id)
-                const msgs = messagesres.messages;
+                const msgs = messagesres;
                 for(let i = 0; i < msgs.length; i++) {
                     if (msgs[i].senderId === id) {
                         messages = [...messages, { message: msgs[i].content, isSentByMe: true,  img: ""}]
