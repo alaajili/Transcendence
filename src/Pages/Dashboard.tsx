@@ -51,6 +51,12 @@ interface Score {
     score2: number;
 }
 
+interface room {
+    id: number;
+    photo: string;
+    members_size: number;
+    name: string;
+}
 const Dashboard = () => {
     const [isHovered, setIsHovered] = useState(null);
     const [isActiveUser, setIsActiveUser] = useState(null);
@@ -80,6 +86,7 @@ const Dashboard = () => {
     const [socket, setSocket] = useState<Socket>();
     const [games, setGames] = useState<Game[]>([]);
     const [gamesMap, setGamesMap] = useState(new Map<string, Score>());
+    const [rooms, setRooms] = useState<room[]>([]);
 
     useEffect(() => {
         setSocket(
@@ -202,6 +209,26 @@ const Dashboard = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [searchContainerRef]);
+    useEffect(() => {
+        const fetchRooms = async () => {
+            try {
+                const res = await axios.get("http://localhost:3000/chat/getallrooms", {
+                    withCredentials: true,
+                })
+                const rooms = res.data;
+                let setrooms: room[] = [];
+                rooms.forEach((element: room) => {
+                    console.log(element);
+                    setrooms = [...setrooms, { id: element.id, photo: element.photo, members_size: element.members_size, name: element.name }]
+                });
+                setRooms(setrooms);
+            } catch (error) {
+
+            }
+        }
+        fetchRooms();
+    }, [])
+
 
     return (
         <div className="my-[1vw] max-sm:my-[2vw] flex flex-col">
@@ -326,11 +353,10 @@ const Dashboard = () => {
                                         alt="friend-pic"
                                     />
                                     <span
-                                        className={`rounded-full ${
-                                            friend.online
+                                        className={`rounded-full ${friend.online
                                                 ? "bg-green-400"
                                                 : "bg-gray-400"
-                                        } w-[0.5vw] h-[0.5vw] max-sm:w-[.8vw] max-sm:h-[.8vw] absolute top-0 right-0`}
+                                            } w-[0.5vw] h-[0.5vw] max-sm:w-[.8vw] max-sm:h-[.8vw] absolute top-0 right-0`}
                                     ></span>
                                 </div>
                                 {isHovered == index && (
@@ -393,7 +419,15 @@ const Dashboard = () => {
                             <h2 className="font-bold font-satoshi uppercase text-[.8vw] max-sm:text-[1.2vh] max-md:text-[1.2vh] max-lg:text-[1.2vh]">
                                 popular public channels
                             </h2>
-                            <PublicChannel />
+                            {rooms.map((room) => (
+                                <PublicChannel
+                                    name={room.name}
+                                    img={room.photo}
+                                    member_size={room.members_size}
+                                    id={room.id}
+                                    key={room.id}
+                                />
+                            ))}
                         </div>
                         <div className="forth-container container-1 mt-[1vw] p-[1.5vw] max-sm:p-[3vw] w-1/2 overflow-y-scroll no-scrollbar max-sm:w-full max-sm:h-full max-md:w-full max-md:h-full">
                             <h2 className="font-bold font-satoshi uppercase text-[.8vw] max-sm:text-[1.2vh] max-md:text-[1.2vh] max-lg:text-[1.2vh]">

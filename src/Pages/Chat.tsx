@@ -241,7 +241,7 @@ const Chat = () => {
         const me = await axios.get("http://localhost:3000/users/me", {
             withCredentials: true,
         });
-        return me.data;
+        return me.data.id;
     }
 
     const getSelectedChannel = async (channel: {
@@ -282,21 +282,39 @@ const Chat = () => {
         let getmember: any;
         if(selectedChannel?.id != undefined)
         {
+
             getmember = await getmemeberoom(selectedChannel?.id);
+            let classSystem = new Map<string, number>();
+            classSystem.set("NORMAL", 0);
+            classSystem.set("ADMIN", 1);
+            classSystem.set("OWNER", 2);
             let members : MemberProps[] = [];
+            let isadmin: boolean = false
+            const me: number = await whoami();
+            
+            console.log("me->", me);
             console.log(getmember)
+            let mystatus: string = 'NORMAL';
+            getmember.roomUsers.find((element:any)=>{
+                if(element.userId == me)
+                   mystatus = element.status
+            })
+            console.log("my status",mystatus)
             getmember.members.forEach((element: {username: string, id: number}) => {
                 const newmember : MemberProps= {
                     id: element.id,
                     username: element.username,
                     img: "http://localhost:3000/" + element.id + ".png",
-                    isAdmin: false,
+                    isAdmin: me != element.id ? true : false,
                 }
-                members = [...members, newmember];
-                getmember.admins.find((admin: any)=> {
-                    if(admin.userId !== element.id)
-                        newmember.isAdmin = true
+                let userclassSystem: string = "NORMAL"
+                getmember.roomUsers.find((roomuser:any)=>{
+                    if(roomuser.userId == element.id)
+                    userclassSystem = roomuser.status
                 })
+                if(me !== element.id && classSystem.get(userclassSystem)! > classSystem.get(mystatus)!)
+                    newmember.isAdmin = false;
+                members = [...members, newmember];
             });
             setMember(members);
         }
