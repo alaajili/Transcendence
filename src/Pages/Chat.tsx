@@ -1,6 +1,7 @@
 import Apollo from "../assets/Apollo.jpg";
 import noChat from "../assets/no-chat.svg";
 import {
+    BsCurrencyRupee,
     BsFillLightningChargeFill,
     BsFillVolumeMuteFill,
     BsPersonFillDash,
@@ -8,13 +9,13 @@ import {
     BsSendFill,
 } from "react-icons/bs";
 import { FiPlus } from "react-icons/fi";
-import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import {useEffect, useRef, useState } from "react";
 import { MessageContainer, AddChannel, Member } from "./index";
 import { Socket, io } from "socket.io-client";
 import axios from "axios";
 import "../styles/AddChannel.css";
 import "../styles/Chat.css";
+import { createRoutesFromElements } from "react-router-dom";
 
 interface messagedto {
     message: string;
@@ -22,24 +23,31 @@ interface messagedto {
     img: string;
     sender: number;
 }
+interface MemberProps {
+    username: string;
+    img: string;
+    isAdmin: boolean;
+    id: number;
+}
+interface intersetchannel{
+    name: string;
+    img: string | File;
+    id: number;
+    status: string;
+    password: string;
+}
+interface intermessages {
+    message:string;
+    isSentByMe: boolean;
+    img: string;
+}
 const Chat = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [channels, setChannels] = useState<
-        { name: string; img: string | File; id: number }[]
-    >([]);
+    const [channels, setChannels] = useState<intersetchannel[]>([]);
     const [inputValue, setInputValue] = useState("");
-    const [messages, setMessages] = useState<
-        {
-            message: string;
-            isSentByMe: boolean;
-            img: string;
-        }[]
-    >([]);
-    const [selectedChannel, setSelectedChannel] = useState<{
-        name: string;
-        img: string | File;
-        id: number;
-    } | null>(null);
+    const [messages, setMessages] = useState<intermessages[]>([]);
+    const [member, setMember] = useState<MemberProps[]>([])
+    const [selectedChannel, setSelectedChannel] = useState<intersetchannel | null>(null);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
@@ -61,7 +69,7 @@ const Chat = () => {
                 message: inputValue.trim(),
                 sender: -1,
             };
-            let ret = socket?.emit("createMessage", dto, {
+            socket?.emit("createMessage", dto, {
                 withCredentials: true,
             });
         }
@@ -73,16 +81,18 @@ const Chat = () => {
         }
     };
 
-    const addChannel = async (currentChannel: {
-        name: string;
-        img: string;
-        id: number;
-    }) => {
+    const addChannel = async (currentChannel: intersetchannel) => {
+        console.log(currentChannel);
         const newChannel = [...channels, currentChannel];
         try {
             const formData = new FormData();
             formData.append("file", currentChannel.img);
             formData.append("name", currentChannel.name);
+            if(currentChannel.password)
+            {
+                formData.append("password", currentChannel.password);
+                formData.append("status", currentChannel.status);
+            }
             await axios.post("http://localhost:3000/chat/new", formData, {
                 withCredentials: true,
             });
@@ -125,20 +135,6 @@ const Chat = () => {
             console.log(error);
         }
     }
-    const getimg = async (roomid: number) => {
-        const res = await axios.get(
-            "http://localhost:3000/" + roomid + "room.png",
-            {
-                withCredentials: true,
-            }
-        );
-        return res.data;
-    };
-    const getuserinfo = async (id: number) => {
-        await axios.get("http://localhost:3000/users/" + id).then((res) => {
-            return res.data;
-        });
-    };
     async function getdminfos(id: number) {
         const res = await axios.get(
             "http://localhost:3000/chat/getdminfos?id=" + id,
@@ -188,7 +184,6 @@ const Chat = () => {
 
     useEffect(() => {
         async function getandSetmsgchannel() {
-            console.log("LOLL");
             if (selectedChannel?.id !== undefined) {
                 let id: number = 0;
                 const res = await whoami();
@@ -235,16 +230,9 @@ const Chat = () => {
         const me = await axios.get("http://localhost:3000/users/me", {
             withCredentials: true,
         });
-        return me.data;
+        return me.data.id;
     }
 
-    const getSelectedChannel = async (channel: {
-        name: string;
-        img: string | File;
-        id: number;
-    }) => {
-        setSelectedChannel(channel);
-    };
     useEffect(() => {
         if (socketRef.current === null) {
             socketRef.current = io("http://localhost:3000", {
@@ -253,7 +241,6 @@ const Chat = () => {
         }
         setSocket(socketRef.current);
         const ret = socket?.on("newmessage", async (dto: messagedto) => {
-            console.log("-------------->", dto);
             setMessages((prevMessages) => [
                 ...prevMessages,
                 {
@@ -264,7 +251,54 @@ const Chat = () => {
             ]);
         });
     }, [socketRef.current]);
+    async function getmemeberoom (roomID: number) {
+        const res = await axios.get("http://localhost:3000/chat/roomMemebers?id=" + roomID, {
+            withCredentials: true,
+        })
+        return res.data;
+    }
+    const setMembers = async() => {
 
+        // const newmember = [...member, getmemeber]
+        let getmember: any;
+        if(selectedChannel?.id != undefined)
+        {
+
+            getmember = await getmemeberoom(selectedChannel?.id);
+            let classSystem = new Map<string, number>();
+            classSystem.set("NORMAL", 0);
+            classSystem.set("ADMIN", 1);
+            classSystem.set("OWNER", 2);
+            let members : MemberProps[] = [];
+            const me: number = await whoami();
+            
+            let mystatus: string = 'NORMAL';
+            getmember.roomUsers.find((element:any)=>{
+                if(element.userId == me)
+                   mystatus = element.status
+            })
+            getmember.members.forEach((element: {username: string, id: number}) => {
+                const newmember : MemberProps= {
+                    id: element.id,
+                    username: element.username,
+                    img: "http://localhost:3000/" + element.id + ".png",
+                    isAdmin: me != element.id ? true : false,
+                }
+                let userclassSystem: string = "NORMAL"
+                getmember.roomUsers.find((roomuser:any)=>{
+                    if(roomuser.userId == element.id)
+                    userclassSystem = roomuser.status
+                })
+                if(me !== element.id && classSystem.get(userclassSystem)! > classSystem.get(mystatus)!)
+                    newmember.isAdmin = false;
+                members = [...members, newmember];
+            });
+            setMember(members);
+        }
+    }
+    useEffect(()=>{
+        setMembers();
+    },[selectedChannel])
     return (
         <div className="parent flex flex-row justify-center items-center gap-[1vw] h-screen max-sm:flex-col max-md:flex-col">
             <div className="child-container-1">
@@ -334,11 +368,15 @@ const Chat = () => {
                                 <span></span>
                                 <ul className="menuItem member-menu absolute w-[30vw] h-[91vh] pt-[3vw] pr-[9vw] pl-[1vw]">
                                     <li className="h-full overflow-y-scroll no-scrollbar mt-[3.3vh] pb-[5.5vh]">
-                                        <Member
-                                            username="yagnaou"
-                                            img={Apollo}
-                                            isAdmin={true}
-                                        />
+                                        {
+                                            member.map((user:MemberProps, idx)=>(<Member
+                                                username={user.username}
+                                                img={user.img}
+                                                isAdmin={user.isAdmin}
+                                                id={user.id}
+                                                key={idx}
+                                            />))
+                                        }
                                     </li>
                                 </ul>
                             </div>
