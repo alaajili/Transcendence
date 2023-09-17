@@ -287,40 +287,6 @@ const ViewProfile = () => {
 
                         )
                         }
-                        {/* <button
-                            className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
-                            onClick={addFriend}
-                        >
-                            <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
-                                Add
-                                <br />
-                                {user?.username}
-                            </span>
-                            <BsPersonFillAdd className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
-                        </button>
-                        <button
-                            className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
-                            onClick={acceptFriendRequest}
-                        >
-                            <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
-                                Accept
-                                <br />
-                                {user?.username}
-                            </span>
-                            <BsPersonCheckFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
-                        </button>
-                        <button
-                            className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
-                            onClick={addFriend}
-                        >
-                            <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
-                                Reject
-                                <br />
-                                {user?.username}
-                            </span>
-                            <BsPersonXFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
-                        </button> */}
-                       
                         <button
                             className="btn-2 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
                             onClick={CreateaDmmsg} 
