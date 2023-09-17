@@ -1,6 +1,7 @@
 import Apollo from "../assets/Apollo.jpg";
 import noChat from "../assets/no-chat.svg";
 import {
+    BsCurrencyRupee,
     BsFillLightningChargeFill,
     BsFillVolumeMuteFill,
     BsPersonFillDash,
@@ -8,13 +9,13 @@ import {
     BsSendFill,
 } from "react-icons/bs";
 import { FiPlus } from "react-icons/fi";
-import { MemoExoticComponent, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import {useEffect, useRef, useState } from "react";
 import { MessageContainer, AddChannel, Member } from "./index";
 import { Socket, io } from "socket.io-client";
 import axios from "axios";
 import "../styles/AddChannel.css";
 import "../styles/Chat.css";
+import { createRoutesFromElements } from "react-router-dom";
 
 interface messagedto {
     message: string;
@@ -28,25 +29,25 @@ interface MemberProps {
     isAdmin: boolean;
     id: number;
 }
+interface intersetchannel{
+    name: string;
+    img: string | File;
+    id: number;
+    status: string;
+    password: string;
+}
+interface intermessages {
+    message:string;
+    isSentByMe: boolean;
+    img: string;
+}
 const Chat = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [channels, setChannels] = useState<
-        { name: string; img: string | File; id: number }[]
-    >([]);
+    const [channels, setChannels] = useState<intersetchannel[]>([]);
     const [inputValue, setInputValue] = useState("");
-    const [messages, setMessages] = useState<
-        {
-            message: string;
-            isSentByMe: boolean;
-            img: string;
-        }[]
-    >([]);
+    const [messages, setMessages] = useState<intermessages[]>([]);
     const [member, setMember] = useState<MemberProps[]>([])
-    const [selectedChannel, setSelectedChannel] = useState<{
-        name: string;
-        img: string | File;
-        id: number;
-    } | null>(null);
+    const [selectedChannel, setSelectedChannel] = useState<intersetchannel | null>(null);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
@@ -68,7 +69,7 @@ const Chat = () => {
                 message: inputValue.trim(),
                 sender: -1,
             };
-            let ret = socket?.emit("createMessage", dto, {
+            socket?.emit("createMessage", dto, {
                 withCredentials: true,
             });
         }
@@ -80,16 +81,18 @@ const Chat = () => {
         }
     };
 
-    const addChannel = async (currentChannel: {
-        name: string;
-        img: string;
-        id: number;
-    }) => {
+    const addChannel = async (currentChannel: intersetchannel) => {
+        console.log(currentChannel);
         const newChannel = [...channels, currentChannel];
         try {
             const formData = new FormData();
             formData.append("file", currentChannel.img);
             formData.append("name", currentChannel.name);
+            if(currentChannel.password)
+            {
+                formData.append("password", currentChannel.password);
+                formData.append("status", currentChannel.status);
+            }
             await axios.post("http://localhost:3000/chat/new", formData, {
                 withCredentials: true,
             });
@@ -132,20 +135,6 @@ const Chat = () => {
             console.log(error);
         }
     }
-    const getimg = async (roomid: number) => {
-        const res = await axios.get(
-            "http://localhost:3000/" + roomid + "room.png",
-            {
-                withCredentials: true,
-            }
-        );
-        return res.data;
-    };
-    const getuserinfo = async (id: number) => {
-        await axios.get("http://localhost:3000/users/" + id).then((res) => {
-            return res.data;
-        });
-    };
     async function getdminfos(id: number) {
         const res = await axios.get(
             "http://localhost:3000/chat/getdminfos?id=" + id,
@@ -244,13 +233,6 @@ const Chat = () => {
         return me.data.id;
     }
 
-    const getSelectedChannel = async (channel: {
-        name: string;
-        img: string | File;
-        id: number;
-    }) => {
-        setSelectedChannel(channel);
-    };
     useEffect(() => {
         if (socketRef.current === null) {
             socketRef.current = io("http://localhost:3000", {
@@ -259,7 +241,6 @@ const Chat = () => {
         }
         setSocket(socketRef.current);
         const ret = socket?.on("newmessage", async (dto: messagedto) => {
-            console.log("-------------->", dto);
             setMessages((prevMessages) => [
                 ...prevMessages,
                 {
@@ -289,17 +270,13 @@ const Chat = () => {
             classSystem.set("ADMIN", 1);
             classSystem.set("OWNER", 2);
             let members : MemberProps[] = [];
-            let isadmin: boolean = false
             const me: number = await whoami();
             
-            console.log("me->", me);
-            console.log(getmember)
             let mystatus: string = 'NORMAL';
             getmember.roomUsers.find((element:any)=>{
                 if(element.userId == me)
                    mystatus = element.status
             })
-            console.log("my status",mystatus)
             getmember.members.forEach((element: {username: string, id: number}) => {
                 const newmember : MemberProps= {
                     id: element.id,

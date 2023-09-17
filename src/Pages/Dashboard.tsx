@@ -56,6 +56,8 @@ interface room {
     photo: string;
     members_size: number;
     name: string;
+    state: string;
+    password: string;
 }
 const Dashboard = () => {
     const [isHovered, setIsHovered] = useState(null);
@@ -219,7 +221,7 @@ const Dashboard = () => {
                 let setrooms: room[] = [];
                 rooms.forEach((element: room) => {
                     console.log(element);
-                    setrooms = [...setrooms, { id: element.id, photo: element.photo, members_size: element.members_size, name: element.name }]
+                    setrooms = [...setrooms, { id: element.id, photo: element.photo, members_size: element.members_size, name: element.name, state: element.state, password: element.password}]
                 });
                 setRooms(setrooms);
             } catch (error) {
@@ -425,6 +427,8 @@ const Dashboard = () => {
                                     img={room.photo}
                                     member_size={room.members_size}
                                     id={room.id}
+                                    status={room.state}
+                                    password={room.password}
                                     key={room.id}
                                 />
                             ))}
