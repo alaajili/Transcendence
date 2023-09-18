@@ -69,7 +69,7 @@ function Game() {
     }, []);
 
     useEffect(() => {
-        console.log("SOCKET ...");
+        socket?.emit("join");
         socket?.on("join_room", (obj: any) => {
             console.log("JOINING ROOM ...");
             setData(obj.data);
@@ -197,6 +197,7 @@ function Game() {
                     leftPlayerY={data?.leftPlayerY}
                     rightPlayerY={data?.rightPlayerY}
                     ball={data?.ball}
+                    scale={scale}
                 />
             </div>
             <div className="flex flex-col items-center">

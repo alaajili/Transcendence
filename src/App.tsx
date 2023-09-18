@@ -12,6 +12,7 @@ import "./App.css";
 import Game from "./Game/Game";
 import { setOnline, recieveNotification } from "./components/mainGateway";
 import Practice from "./Game/Practice";
+import Spectate from "./Game/Spectate";
 
 const App = () => {
     setOnline();
@@ -25,6 +26,7 @@ const App = () => {
                 <Route path="/gamemode" element={<GameMode />} />
                 <Route path="/game" element={<Game />} />
                 <Route path="/practice" element={<Practice />} />
+                <Route path="/spectate" element={<Spectate />} />
                 <Route path="/home" element={<Dashboard />} />
                 <Route
                     path="/add-channel"

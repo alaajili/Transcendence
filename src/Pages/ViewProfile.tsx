@@ -132,7 +132,7 @@ const ViewProfile = () => {
             isDm: true,
             receiver: user?.id,
         };
-         await axios.post("http://localhost:3000/chat/newdm", data, {
+        await axios.post("http://localhost:3000/chat/newdm", data, {
             withCredentials: true,
         });
         navigate("/chat");

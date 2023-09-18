@@ -6,7 +6,6 @@ import axios from "axios";
 import "../styles/Game.css";
 import waiting from "../assets/waiting.json";
 import Lottie from "lottie-react";
-import Apollo from "../assets/Apollo.jpg"
 
 interface Ball {
     x: number;
@@ -18,8 +17,8 @@ interface Ball {
 
 interface GameData {
     ball: Ball;
-    playerY: number;
-    botY: number;
+    leftPlayerY: number;
+    rightPlayerY: number;
     leftScore: number;
     rightScore: number;
 }
@@ -29,15 +28,15 @@ interface PlayerData {
     photo: string;
 }
 
-function Practice() {
+function Spectate() {
     const [started, setStarted] = useState<boolean>(false);
 
-    const [roomName, setRoomName] = useState<string>();
 
     const [socket, setSocket] = useState<Socket | null>(null);
 
     const [data, setData] = useState<GameData>();
-    const [player, setPlayer] = useState<PlayerData>();
+    const [playerOne, setPlayerOne] = useState<PlayerData>();
+    const [playerTwo, setPlayerTwo] = useState<PlayerData>();
     const [scale, setScale] = useState<number>(1);
     const [endMatch, setEndMatch] = useState<boolean>(false);
 
@@ -56,7 +55,7 @@ function Practice() {
     };
 
     useEffect(() => {
-        setSocket(io("http://localhost:3000/bot", { withCredentials: true }));
+        setSocket(io("http://localhost:3000/game", { withCredentials: true }));
     }, []);
 
     useEffect(() => {
@@ -69,19 +68,33 @@ function Practice() {
     }, []);
 
     useEffect(() => {
-        console.log("SOCKET ...");
+        const queryParams = new URLSearchParams(window.location.search);
+        let roomName = queryParams.get("roomname");
+
+        socket?.emit("spectate", {roomName});
         socket?.on("join_room", (obj: any) => {
             console.log("JOINING ROOM ...");
             setData(obj.data);
-            setRoomName(obj.roomName);
 
             axios
                 .get(
-                    `http://localhost:3000/users/userinfos?id=${obj.playerId}`,
+                    `http://localhost:3000/users/userinfos?id=${obj.playerOneId}`,
                     { withCredentials: true }
                 )
                 .then((res) => {
-                    setPlayer({
+                    setPlayerOne({
+                        username: res.data.username,
+                        photo: res.data.photo,
+                    });
+                });
+
+            axios
+                .get(
+                    `http://localhost:3000/users/userinfos?id=${obj.playerTwoId}`,
+                    { withCredentials: true }
+                )
+                .then((res) => {
+                    setPlayerTwo({
                         username: res.data.username,
                         photo: res.data.photo,
                     });
@@ -105,12 +118,6 @@ function Practice() {
         };
     }, [socket]);
 
-    const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-        const divY = event.currentTarget.getBoundingClientRect().top;
-        const posY = (event.clientY - divY) * (1 / scale);
-
-        socket?.emit("move", { posY, roomName });
-    };
 
     if (endMatch) {
         socket?.disconnect();
@@ -159,11 +166,11 @@ function Practice() {
             <div className="flex space-x-16 lg:space-x-48 items-center">
                 <span className="flex flex-col items-center space-y-2">
                     <img
-                        src={player?.photo}
+                        src={playerOne?.photo}
                         className="h-16 lg:h-20 w-16 lg:w-20 rounded-full"
                     />
                     <span className="text-white text-lg font-mono font-bold">
-                        {player?.username}
+                        {playerOne?.username}
                     </span>
                 </span>
                 <span className="text-4xl lg:text-6xl text-white font-bold">
@@ -171,19 +178,19 @@ function Practice() {
                 </span>
                 <span className="flex flex-col items-center space-y-2">
                     <img
-                        src={Apollo}
+                        src={playerTwo?.photo}
                         className="h-16 lg:h-20 w-16 lg:w-20 rounded-full"
                     />
                     <span className="text-white text-lg font-mono font-bold">
-                        Apollo
+                        {playerTwo?.username}
                     </span>
                 </span>
             </div>
-            <div className="canvas" onMouseMove={handleMouseMove}>
+            <div className="canvas">
                 <ReactP5Wrapper
                     sketch={GameField}
-                    leftPlayerY={data?.playerY}
-                    rightPlayerY={data?.botY}
+                    leftPlayerY={data?.leftPlayerY}
+                    rightPlayerY={data?.rightPlayerY}
                     ball={data?.ball}
                     scale={scale}
                 />
@@ -208,4 +215,4 @@ function Practice() {
     );
 }
 
-export default Practice;
+export default Spectate;
