@@ -1,6 +1,5 @@
 import {
     BsFillChatSquareTextFill,
-    BsFillCheckCircleFill,
     BsGithub,
     BsInstagram,
     BsLinkedin,
@@ -12,7 +11,8 @@ import {
 import { useEffect, useState } from "react";
 import "../styles/ViewProfile.css";
 import axios from "axios";
-import {useNavigate, Link} from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { MatchCard } from ".";
 
 interface UserInfo {
     photo: string;
@@ -25,17 +25,17 @@ interface UserInfo {
     wins: number;
     loses: number;
     games: number;
-};
+}
 
 interface Player {
     photo: string;
     username: string;
-};
+}
 
 interface Game {
     player1Id: number;
     player1Score: number;
-    player2Id: number; 
+    player2Id: number;
     player2Score: number;
     type: string;
 }
@@ -44,7 +44,7 @@ enum FriendStatus {
     NONE,
     PENDING_SENT,
     PENDING_RECIEVED,
-    FRIENDS
+    FRIENDS,
 }
 
 const ViewProfile = () => {
@@ -62,7 +62,10 @@ const ViewProfile = () => {
         } else if (friendShip.sent && friendShip.sent.status === "PENDING") {
             setFriendStatus(FriendStatus.PENDING_SENT);
             console.log("sent pending");
-        } else if (friendShip.recieved && friendShip.recieved.status === "PENDING") {
+        } else if (
+            friendShip.recieved &&
+            friendShip.recieved.status === "PENDING"
+        ) {
             setFriendStatus(FriendStatus.PENDING_RECIEVED);
             console.log("recived pending");
         } else {
@@ -70,62 +73,61 @@ const ViewProfile = () => {
             console.log("friends");
         }
 
-        if (friendShip.sent) { setFriendShipId(friendShip.sent.id); }
-        else if (friendShip.recieved) { setFriendShipId(friendShip.recieved.id); }
-    }
+        if (friendShip.sent) {
+            setFriendShipId(friendShip.sent.id);
+        } else if (friendShip.recieved) {
+            setFriendShipId(friendShip.recieved.id);
+        }
+    };
 
     const getUserInfo = async () => {
-
         const queryParams = new URLSearchParams(window.location.search);
         let id = queryParams.get("id");
         if (id == null) id = "0";
         let userid: number = +id;
-        await axios.get(
-            `http://localhost:3000/users/byid?id=${id}`, {
+        await axios
+            .get(`http://localhost:3000/users/byid?id=${id}`, {
                 withCredentials: true,
-            }
-        ).then((res) => {
-            const data = res.data;
-            setUser({
-                photo: data.user.photo,
-                username: data.user.username,
-                firstname: data.user.firstname,
-                lastname: data.user.lastname,
-                bio: data.user.bio,
-                id: userid,
-                online: data.user.online,
-                wins: data.user.wins,
-                loses: data.user.losses,
-                games: (data.user.wins + data.user.losses)
+            })
+            .then((res) => {
+                const data = res.data;
+                setUser({
+                    photo: data.user.photo,
+                    username: data.user.username,
+                    firstname: data.user.firstname,
+                    lastname: data.user.lastname,
+                    bio: data.user.bio,
+                    id: userid,
+                    online: data.user.online,
+                    wins: data.user.wins,
+                    loses: data.user.losses,
+                    games: data.user.wins + data.user.losses,
+                });
+                const newMAp = new Map<number, Player>(map);
+                newMAp.set(userid, {
+                    photo: data.user.photo,
+                    username: data.user.username,
+                });
+                setMap(newMAp);
+                getFriendStatus(data.friendShip);
             });
-            const newMAp = new Map<number, Player>(map);
-            newMAp.set(userid, {
-                photo: data.user.photo,
-                username: data.user.username
-            });
-            setMap(newMAp);
-            getFriendStatus(data.friendShip);
-        });
-
-    }
-
+    };
 
     const getUserGames = async () => {
-
         const queryParams = new URLSearchParams(window.location.search);
         let id = queryParams.get("id");
         if (id == null) id = "0";
 
-        await axios.get(
-            `http://localhost:3000/users/usergames?id=${id}`, {
-                withCredentials: true
-            }
-        ).then((res) => {
-            if (res.data) {
-                setGames(res.data.games);
-            }
-        })
-    }
+        await axios
+            .get(`http://localhost:3000/users/usergames?id=${id}`, {
+                withCredentials: true,
+            })
+            .then((res) => {
+                if (res.data) {
+                    setGames(res.data.games);
+                }
+            });
+    };
 
     const CreateaDmmsg = async () => {
         const data = {
@@ -147,36 +149,38 @@ const ViewProfile = () => {
     useEffect(() => {
         const promises: any[] = [];
 
-        {games.map( game => {
-            if (map.has(game.player1Id) === false) {
-                promises.push(
-                    axios.get(
-                        `http://localhost:3000/users/userinfos?id=${game.player1Id}`,
-                        { withCredentials: true }
-                    )
-                );
-            }
-            if (map.has(game.player2Id) === false) {
-                promises.push(
-                    axios.get(
-                        `http://localhost:3000/users/userinfos?id=${game.player2Id}`,
-                        { withCredentials: true }
-                    )
-                );
-            }
-        })}
+        {
+            games.map((game) => {
+                if (map.has(game.player1Id) === false) {
+                    promises.push(
+                        axios.get(
+                            `http://localhost:3000/users/userinfos?id=${game.player1Id}`,
+                            { withCredentials: true }
+                        )
+                    );
+                }
+                if (map.has(game.player2Id) === false) {
+                    promises.push(
+                        axios.get(
+                            `http://localhost:3000/users/userinfos?id=${game.player2Id}`,
+                            { withCredentials: true }
+                        )
+                    );
+                }
+            });
+        }
 
         Promise.all(promises).then((results) => {
             const newMAp = new Map<number, Player>(map);
-            results.map(res => {
+            results.map((res) => {
                 newMAp.set(res.data.id, {
                     photo: res.data.photo,
-                    username: res.data.username
+                    username: res.data.username,
                 });
             });
             setMap(newMAp);
         });
-    }, [games])
+    }, [games]);
 
     const addFriend = async () => {
         console.log("friend request sent");
@@ -189,38 +193,35 @@ const ViewProfile = () => {
     };
 
     const acceptFriendRequest = async () => {
-
         await axios.post(
             "http://localhost:3000/users/fillfriendrequest",
             {
                 id: friendShipId,
-                response: true
+                response: true,
             },
             { withCredentials: true }
         );
         getUserInfo();
-    }
+    };
 
     const declineFriendRequest = async () => {
         await axios.post(
             "http://localhost:3000/users/fillfriendrequest",
             {
                 id: friendShipId,
-                response: false
+                response: false,
             },
             { withCredentials: true }
         );
         getUserInfo();
-    }
-
+    };
 
     return (
         <div className="parent flex justify-center items-center h-screen gap-[1vw] max-sm:gap-[3vw] max-sm:flex-col max-md:flex-col max-md:my-[2vh]">
             <div className="child-container-1">
                 <div className="container-1 font-satoshi text-white w-[18vw] h-[90vh] max-sm:w-[80vw] max-sm:h-[50vh] max-md:w-[80vw] max-md:h-[50vh] flex flex-col justify-center items-center relative">
                     <div className="flex flex-row gap-[1vw] max-sm:gap-[3vw] max-md:gap-[3vw] items-center justify-center absolute top-[5.5vw] max-sm:top-[5.5vw] max-md:top-[5vw]">
-                        {(friendStatus === FriendStatus.FRIENDS) ?
-                        (
+                        {friendStatus === FriendStatus.FRIENDS ? (
                             <button
                                 className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
                                 onClick={addFriend}
@@ -231,48 +232,45 @@ const ViewProfile = () => {
                                     {user?.username}
                                 </span>
                                 <BsPersonXFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
-                            </button> 
-                        ) : (friendStatus === FriendStatus.PENDING_SENT) ?
-                        (
+                            </button>
+                        ) : friendStatus === FriendStatus.PENDING_SENT ? (
                             <button
                                 className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
                                 onClick={addFriend}
                             >
-                            <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
-                                remove friend request
-                                {/* <br /> */}
-                                {/* {user?.username} */}
-                            </span>
-                            <BsPersonXFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
-                            </button> 
-                        ) : (friendStatus === FriendStatus.PENDING_RECIEVED) ?
-                        (
-                            <>
-                            <button
-                                className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
-                                onClick={declineFriendRequest}
-                            >
                                 <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
-                                    Reject
-                                    <br />
-                                    {user?.username}
+                                    remove friend request
+                                    {/* <br /> */}
+                                    {/* {user?.username} */}
                                 </span>
                                 <BsPersonXFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
                             </button>
-                            <button
-                                className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
-                                onClick={acceptFriendRequest}
-                            >
-                                <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
-                                    Accept
-                                    <br />
-                                    {user?.username}
-                                </span>
-                                <BsPersonCheckFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
-                            </button>
+                        ) : friendStatus === FriendStatus.PENDING_RECIEVED ? (
+                            <>
+                                <button
+                                    className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
+                                    onClick={declineFriendRequest}
+                                >
+                                    <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
+                                        Reject
+                                        <br />
+                                        {user?.username}
+                                    </span>
+                                    <BsPersonXFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
+                                </button>
+                                <button
+                                    className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
+                                    onClick={acceptFriendRequest}
+                                >
+                                    <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
+                                        Accept
+                                        <br />
+                                        {user?.username}
+                                    </span>
+                                    <BsPersonCheckFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
+                                </button>
                             </>
-                        ) :
-                        (
+                        ) : (
                             <button
                                 className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
                                 onClick={addFriend}
@@ -284,12 +282,10 @@ const ViewProfile = () => {
                                 </span>
                                 <BsPersonFillAdd className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
                             </button>
-
-                        )
-                        }
+                        )}
                         <button
                             className="btn-2 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
-                            onClick={CreateaDmmsg} 
+                            onClick={CreateaDmmsg}
                         >
                             <span className="message absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
                                 Message
@@ -298,8 +294,10 @@ const ViewProfile = () => {
                             </span>
                             <BsFillChatSquareTextFill className="text-[1vw] max-sm:text-[2vw] max-md:text-[2vw]" />
                         </button>
-                        <Link to='/chat' className="btn-3 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1">
-                            
+                        <Link
+                            to="/chat"
+                            className="btn-3 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
+                        >
                             <span className="block absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
                                 Block
                                 <br />
@@ -397,39 +395,8 @@ const ViewProfile = () => {
                         <h3 className="text-[1vw] max-sm:text-[2.5vw] max-md:text-[2vw] mt-[5vw]">
                             Match History for <strong>{user?.username}</strong>
                         </h3>
-                        
                         {games.map((game, index) => (
-                            <div key={index} className="game-di mt-[1vw] max-sm:mt-[2.5vw] max-md:mt-[2vw] max-lg:mt-[2vw] flex container-1 px-[2vw] py-[.5vw] max-sm:py-[1vh] max-md:py-[1vh] max-lg:py-[1vh] justify-between items-center w-full">
-                                <div className="flex items-center gap-5 max-sm:gap-[1vw] max-md:gap-[1vw] max-lg:gap-[1vw]">
-                                    <img
-                                        className="ppic rounded-full w-[3vw] h-[3vw] max-sm:w-[7vw] max-sm:h-[7vw] max-md:w-[5vw] max-md:h-[5vw] max-lg:w-[3.5vw] max-lg:h-[3.5vw] mr-[.5vw]"
-                                        src={map.get(game.player1Id)?.photo}
-                                        alt="profile-pic"
-                                    />
-                                    <h2 className="username font-medium font-satoshi text-[.8vw] max-sm:text-[1.2vh] max-md:text-[1.2vh] max-lg:text-[1.2vh]">
-                                    {map.get(game.player1Id)?.username}
-                                    </h2>
-                                </div>
-                                <h1 className="font-black font-satoshi text-[1vw] max-sm:text-[1.4vh] max-md:text-[1.4vh] max-lg:text-[1.4vh]">
-                                    {game.player1Score}
-                                </h1>
-                                <h1 className="vs font-black font-satoshi text-[1vw] max-sm:text-[1.4vh] max-md:text-[1.4vh] max-lg:text-[1.4vh]">
-                                    VS
-                                </h1>
-                                <h1 className="font-black font-satoshi text-[1vw] max-sm:text-[1.4vh] max-md:text-[1.4vh] max-lg:text-[1.4vh]">
-                                    {game.player2Score}
-                                </h1>
-                                <div className="flex items-center gap-5 max-sm:gap-[1vw] max-md:gap-[1vw] max-lg:gap-[1vw]">
-                                    <h2 className="username font-medium font-satoshi text-[.8vw] max-sm:text-[1.2vh] max-md:text-[1.2vh] max-lg:text-[1.2vh]">
-                                    {map.get(game.player2Id)?.username}
-                                    </h2>
-                                    <img
-                                        className="ppic rounded-full w-[3vw] h-[3vw] max-sm:w-[7vw] max-sm:h-[7vw] max-md:w-[5vw] max-md:h-[5vw] max-lg:w-[3.5vw] max-lg:h-[3.5vw] ml-[.5vw]"
-                                        src={map.get(game.player2Id)?.photo}
-                                        alt="profile-pic"
-                                    />
-                                </div>
-                            </div>
+                            <MatchCard game={game} index={index} map={map} />
                         ))}
                     </div>
                 </div>

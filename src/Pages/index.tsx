@@ -14,4 +14,4 @@ export { default as PublicChannel } from "../components/PublicChannel";
 export { default as LiveGame } from "../components/LiveGame";
 export { default as AddChannel } from "../components/AddChannel";
 export { default as Member } from "../components/Member";
-
+export { default as MatchCard } from "../components/MatchCard";

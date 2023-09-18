@@ -220,7 +220,7 @@ const Dashboard = () => {
                 const rooms = res.data;
                 let setrooms: room[] = [];
                 rooms.forEach((element: room) => {
-                    console.log(element);
+                    console.log("KKKKKKK", element);
                     setrooms = [...setrooms, { id: element.id, photo: element.photo, members_size: element.members_size, name: element.name, state: element.state, password: element.password}]
                 });
                 setRooms(setrooms);
