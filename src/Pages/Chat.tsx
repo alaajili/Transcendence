@@ -15,7 +15,7 @@ import { Socket, io } from "socket.io-client";
 import axios from "axios";
 import "../styles/AddChannel.css";
 import "../styles/Chat.css";
-import { createRoutesFromElements } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 
 interface messagedto {
     message: string;
@@ -41,6 +41,10 @@ interface intermessages {
     isSentByMe: boolean;
     img: string;
 }
+interface kickuser{
+    id: number;
+    roomid: number;
+}
 const Chat = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [channels, setChannels] = useState<intersetchannel[]>([]);
@@ -52,8 +56,8 @@ const Chat = () => {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
     };
-
-    const handleArrowClick = () => {
+    const navigate = useNavigate();
+    const handleArrowClick = async () => {
         if (inputValue.trim() !== "") {
             setMessages((prevMessages) => [
                 ...prevMessages,
@@ -67,7 +71,7 @@ const Chat = () => {
             const dto = {
                 id: selectedChannel?.id,
                 message: inputValue.trim(),
-                sender: -1,
+                sender: await whoami(),
             };
             socket?.emit("createMessage", dto, {
                 withCredentials: true,
@@ -185,9 +189,7 @@ const Chat = () => {
     useEffect(() => {
         async function getandSetmsgchannel() {
             if (selectedChannel?.id !== undefined) {
-                let id: number = 0;
-                const res = await whoami();
-                id = res.id;
+                const id: number = await whoami()
                 let messages: {
                     message: string;
                     isSentByMe: boolean;
@@ -196,7 +198,7 @@ const Chat = () => {
                 const messagesres = await getChannelmsg(selectedChannel?.id);
                 const msgs = messagesres;
                 for (let i = 0; i < msgs.length; i++) {
-                    if (msgs[i].senderId === id) {
+                    if (msgs[i].senderId == id) {
                         messages = [
                             ...messages,
                             {
@@ -250,6 +252,9 @@ const Chat = () => {
                 },
             ]);
         });
+        socket?.on("kick", async (dto: kickuser)=> {
+            navigate("/chat");
+        })
     }, [socketRef.current]);
     async function getmemeberoom (roomID: number) {
         const res = await axios.get("http://localhost:3000/chat/roomMemebers?id=" + roomID, {
@@ -263,16 +268,11 @@ const Chat = () => {
         let getmember: any;
         if(selectedChannel?.id != undefined)
         {
-
             getmember = await getmemeberoom(selectedChannel?.id);
-            let classSystem = new Map<string, number>();
-            classSystem.set("NORMAL", 0);
-            classSystem.set("ADMIN", 1);
-            classSystem.set("OWNER", 2);
+            const classSystem = new Map<string, number>([["NORMAL", 0],["ADMIN", 1],["OWNER",2]]);              
             let members : MemberProps[] = [];
             const me: number = await whoami();
-            
-            let mystatus: string = 'NORMAL';
+            let mystatus: string;
             getmember.roomUsers.find((element:any)=>{
                 if(element.userId == me)
                    mystatus = element.status
