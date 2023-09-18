@@ -9,13 +9,13 @@ import {
     BsSendFill,
 } from "react-icons/bs";
 import { FiPlus } from "react-icons/fi";
-import {useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MessageContainer, AddChannel, Member } from "./index";
 import { Socket, io } from "socket.io-client";
 import axios from "axios";
 import "../styles/AddChannel.css";
 import "../styles/Chat.css";
-import {useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface messagedto {
     message: string;
@@ -29,7 +29,7 @@ interface MemberProps {
     isAdmin: boolean;
     id: number;
 }
-interface intersetchannel{
+interface intersetchannel {
     name: string;
     img: string | File;
     id: number;
@@ -37,11 +37,11 @@ interface intersetchannel{
     password: string;
 }
 interface intermessages {
-    message:string;
+    message: string;
     isSentByMe: boolean;
     img: string;
 }
-interface kickuser{
+interface kickuser {
     id: number;
     roomid: number;
 }
@@ -92,8 +92,7 @@ const Chat = () => {
             const formData = new FormData();
             formData.append("file", currentChannel.img);
             formData.append("name", currentChannel.name);
-            if(currentChannel.password)
-            {
+            if (currentChannel.password) {
                 formData.append("password", currentChannel.password);
                 formData.append("status", currentChannel.status);
             }
@@ -252,53 +251,50 @@ const Chat = () => {
                 },
             ]);
         });
-        socket?.on("kick", async (dto: kickuser)=> {
+        socket?.on("kick", async (dto: kickuser) => {
             navigate("/chat");
         })
     }, [socketRef.current]);
-    async function getmemeberoom (roomID: number) {
+    async function getmemeberoom(roomID: number) {
         const res = await axios.get("http://localhost:3000/chat/roomMemebers?id=" + roomID, {
             withCredentials: true,
         })
         return res.data;
     }
-    const setMembers = async() => {
-
-        // const newmember = [...member, getmemeber]
+    const setMembers = async () => {
         let getmember: any;
-        if(selectedChannel?.id != undefined)
-        {
+        if (selectedChannel?.id != undefined) {
             getmember = await getmemeberoom(selectedChannel?.id);
-            const classSystem = new Map<string, number>([["NORMAL", 0],["ADMIN", 1],["OWNER",2]]);              
-            let members : MemberProps[] = [];
+            const classSystem = new Map<string, number>([["NORMAL", 0], ["ADMIN", 1], ["OWNER", 2]]);
+            let members: MemberProps[] = [];
             const me: number = await whoami();
             let mystatus: string;
-            getmember.roomUsers.find((element:any)=>{
-                if(element.userId == me)
-                   mystatus = element.status
+            getmember.roomUsers.find((element: any) => {
+                if (element.userId == me)
+                    mystatus = element.status
             })
-            getmember.members.forEach((element: {username: string, id: number}) => {
-                const newmember : MemberProps= {
+            getmember.members.forEach((element: { username: string, id: number }) => {
+                const newmember: MemberProps = {
                     id: element.id,
                     username: element.username,
                     img: "http://localhost:3000/" + element.id + ".png",
                     isAdmin: me != element.id ? true : false,
                 }
                 let userclassSystem: string = "NORMAL"
-                getmember.roomUsers.find((roomuser:any)=>{
-                    if(roomuser.userId == element.id)
-                    userclassSystem = roomuser.status
+                getmember.roomUsers.find((roomuser: any) => {
+                    if (roomuser.userId == element.id)
+                        userclassSystem = roomuser.status
                 })
-                if(me !== element.id && classSystem.get(userclassSystem)! > classSystem.get(mystatus)!)
+                if (me !== element.id && classSystem.get(userclassSystem)! > classSystem.get(mystatus)!)
                     newmember.isAdmin = false;
                 members = [...members, newmember];
             });
             setMember(members);
         }
     }
-    useEffect(()=>{
+    useEffect(() => {
         setMembers();
-    },[selectedChannel])
+    }, [selectedChannel])
     return (
         <div className="parent flex flex-row justify-center items-center gap-[1vw] h-screen max-sm:flex-col max-md:flex-col">
             <div className="child-container-1">
@@ -317,11 +313,10 @@ const Chat = () => {
                         {channels.map((channel, idx) => (
                             <div
                                 key={idx}
-                                className={`channel flex relative top-0 items-center px-[1vw] max-sm:px-[3vw] max-md:px-[3vw] scroll-auto h-[8vh] max-sm:h-[5vh] max-md:h-[5vh] hover:cursor-pointer ${
-                                    selectedChannel === channel
+                                className={`channel flex relative top-0 items-center px-[1vw] max-sm:px-[3vw] max-md:px-[3vw] scroll-auto h-[8vh] max-sm:h-[5vh] max-md:h-[5vh] hover:cursor-pointer ${selectedChannel === channel
                                         ? "active-channel"
                                         : ""
-                                }`}
+                                    }`}
                                 onClick={() => setSelectedChannel(channel)}
                             >
                                 <img
@@ -369,7 +364,7 @@ const Chat = () => {
                                 <ul className="menuItem member-menu absolute w-[30vw] h-[91vh] pt-[3vw] pr-[9vw] pl-[1vw]">
                                     <li className="h-full overflow-y-scroll no-scrollbar mt-[3.3vh] pb-[5.5vh]">
                                         {
-                                            member.map((user:MemberProps, idx)=>(<Member
+                                            member.map((user: MemberProps, idx) => (<Member
                                                 username={user.username}
                                                 img={user.img}
                                                 isAdmin={user.isAdmin}

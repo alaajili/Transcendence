@@ -18,8 +18,6 @@ interface joinroominter{
 
 const PublicChannel = ({ name, img, member_size, id, status, password}: room) => {
     const navigate = useNavigate()
-    console.log("img----->", member_size);
-    
     const joinroom = async (data: joinroominter) => {
         const res = await axios.post("http://localhost:3000/chat/joinroom", data, {
             withCredentials: true,
