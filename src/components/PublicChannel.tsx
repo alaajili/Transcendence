@@ -13,7 +13,7 @@ interface room {
 interface joinroominter{
     id: number;
     password: string;
-    state: string;
+    status: string;
 }
 
 const PublicChannel = ({ name, img, member_size, id, status, password}: room) => {
@@ -50,7 +50,7 @@ const PublicChannel = ({ name, img, member_size, id, status, password}: room) =>
                     const data: joinroominter = {
                         id: id,
                         password: password,
-                        state: status
+                        status: status,
                     }
                     joinroom(data);
                 }}
