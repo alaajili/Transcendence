@@ -6,6 +6,7 @@ import axios from "axios";
 import "../styles/Game.css";
 import waiting from "../assets/waiting.json";
 import Lottie from "lottie-react";
+import { useNavigate } from "react-router-dom";
 
 interface Ball {
     x: number;
@@ -39,6 +40,8 @@ function Spectate() {
     const [playerTwo, setPlayerTwo] = useState<PlayerData>();
     const [scale, setScale] = useState<number>(1);
     const [endMatch, setEndMatch] = useState<boolean>(false);
+
+    const navigate = useNavigate();
 
     const handleWindowResize = () => {
         if (window.innerWidth <= 600) {
@@ -131,14 +134,14 @@ function Spectate() {
                 <div className="flex gap-[3vw] mt-[2vw]">
                     <button
                         className="hover:scale-105 text-white font-bold font-satoshi w-[10vw] h-[3vw] container-1 text-[1vw]"
-                        onClick={() => window.location.reload()}
+                        onClick={() => navigate("/game")}
                     >
                         Yes
                     </button>
 
                     <button
                         className="hover:scale-105 text-white font-bold font-satoshi w-[10vw] h-[3vw] container-1 text-[1vw]"
-                        onClick={() => window.location.replace("/home")}
+                        onClick={() => navigate("/home")}
                     >
                         No
                     </button>

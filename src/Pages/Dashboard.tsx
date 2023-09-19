@@ -231,6 +231,10 @@ const Dashboard = () => {
         fetchRooms();
     }, [])
 
+    const toGame = () => {
+        const socket = io("http://localhost:3000/game", { withCredentials: true });
+        Navigate("/game")
+    }
 
     return (
         <div className="my-[1vw] max-sm:my-[2vw] flex flex-col">
@@ -378,13 +382,13 @@ const Dashboard = () => {
                             </h2>
                             <div className="handler flex justify-center items-center w-full h-full mt-[2vw] max-sm:mt-0 max-md:mt-0 max-lg:mt-0">
                                 <nav className="no-scrollbar gap-[.4vw] max-sm:gap-[1.2vw] max-md:gap-[1.2vw] max-lg:gap-[.5vw] flex">
-                                    <Link to="/game">
+                                    <button onClick={toGame}>
                                         <div className="card easy-mode flex justify-center items-center">
                                             <p className="font-bold font-satoshi lowercase text-[.8vw] max-sm:text-[1.2vh] max-md:text-[1.2vh] max-lg:text-[1.2vh]">
                                                 EASY
                                             </p>
                                         </div>
-                                    </Link>
+                                    </button>
                                     <Link to="/game">
                                         <div className="card medium-mode flex justify-center items-center">
                                             <p className="font-bold font-satoshi lowercase text-[.8vw] max-sm:text-[1.2vh] max-md:text-[1.2vh] max-lg:text-[1.2vh]">

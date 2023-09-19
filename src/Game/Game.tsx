@@ -6,6 +6,8 @@ import axios from "axios";
 import "../styles/Game.css";
 import waiting from "../assets/waiting.json";
 import Lottie from "lottie-react";
+import { useNavigate } from "react-router-dom";
+import { Props } from "react-apexcharts";
 
 interface Ball {
     x: number;
@@ -28,18 +30,20 @@ interface PlayerData {
     photo: string;
 }
 
-function Game() {
+function Game({socket: Socket}) {
     const [started, setStarted] = useState<boolean>(false);
 
     const [roomName, setRoomName] = useState<string>();
 
-    const [socket, setSocket] = useState<Socket | null>(null);
+    // const [socket, setSocket] = useState<Socket | null>(null);
 
     const [data, setData] = useState<GameData>();
     const [playerOne, setPlayerOne] = useState<PlayerData>();
     const [playerTwo, setPlayerTwo] = useState<PlayerData>();
     const [scale, setScale] = useState<number>(1);
     const [endMatch, setEndMatch] = useState<boolean>(false);
+
+    const navigate = useNavigate();
 
     const handleWindowResize = () => {
         if (window.innerWidth <= 600) {
@@ -55,9 +59,9 @@ function Game() {
         }
     };
 
-    useEffect(() => {
-        setSocket(io("http://localhost:3000/game", { withCredentials: true }));
-    }, []);
+    // useEffect(() => {
+    //     setSocket(io("http://localhost:3000/game", { withCredentials: true }));
+    // }, []);
 
     useEffect(() => {
         handleWindowResize();
@@ -102,18 +106,18 @@ function Game() {
             setStarted(true);
         });
 
-        socket?.on("update", (data: GameData) => {
+        socket.on("update", (data: GameData) => {
             setData(data);
         });
 
-        socket?.on("endMatch", () => {
+        socket.on("endMatch", () => {
             setEndMatch(true);
         });
 
         return () => {
-            socket?.off("update");
-            socket?.off("join_room");
-            socket?.disconnect();
+            socket.off("update");
+            socket.off("join_room");
+            socket.disconnect();
         };
     }, [socket]);
 
@@ -123,6 +127,11 @@ function Game() {
 
         socket?.emit("move", { posY, roomName });
     };
+
+    const replay = () => {
+        setStarted(false);
+        setEndMatch(false);
+    }
 
     if (endMatch) {
         socket?.disconnect();
@@ -136,14 +145,14 @@ function Game() {
                 <div className="flex gap-[3vw] mt-[2vw]">
                     <button
                         className="hover:scale-105 text-white font-bold font-satoshi w-[10vw] h-[3vw] container-1 text-[1vw]"
-                        onClick={() => window.location.reload()}
+                        onClick={() => replay()}
                     >
                         Yes
                     </button>
 
                     <button
                         className="hover:scale-105 text-white font-bold font-satoshi w-[10vw] h-[3vw] container-1 text-[1vw]"
-                        onClick={() => window.location.replace("/home")}
+                        onClick={() => navigate("/home")}
                     >
                         No
                     </button>
