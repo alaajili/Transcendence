@@ -30,12 +30,12 @@ interface PlayerData {
     photo: string;
 }
 
-function Game({socket: Socket}) {
+function Game() {
     const [started, setStarted] = useState<boolean>(false);
 
     const [roomName, setRoomName] = useState<string>();
 
-    // const [socket, setSocket] = useState<Socket | null>(null);
+    const [socket, setSocket] = useState<Socket | null>(null);
 
     const [data, setData] = useState<GameData>();
     const [playerOne, setPlayerOne] = useState<PlayerData>();
@@ -59,9 +59,9 @@ function Game({socket: Socket}) {
         }
     };
 
-    // useEffect(() => {
-    //     setSocket(io("http://localhost:3000/game", { withCredentials: true }));
-    // }, []);
+    useEffect(() => {
+        setSocket(io("http://localhost:3000/game", { withCredentials: true }));
+    }, []);
 
     useEffect(() => {
         handleWindowResize();
@@ -73,7 +73,13 @@ function Game({socket: Socket}) {
     }, []);
 
     useEffect(() => {
+        socket?.on("disconnect", () => {
+            console.log("disconnect from server");
+            navigate("/add-channel")
+        })
+
         socket?.emit("join");
+
         socket?.on("join_room", (obj: any) => {
             console.log("JOINING ROOM ...");
             setData(obj.data);
@@ -106,18 +112,18 @@ function Game({socket: Socket}) {
             setStarted(true);
         });
 
-        socket.on("update", (data: GameData) => {
+        socket?.on("update", (data: GameData) => {
             setData(data);
         });
 
-        socket.on("endMatch", () => {
+        socket?.on("endMatch", () => {
             setEndMatch(true);
         });
 
         return () => {
-            socket.off("update");
-            socket.off("join_room");
-            socket.disconnect();
+            socket?.off("update");
+            socket?.off("join_room");
+            socket?.disconnect();
         };
     }, [socket]);
 
