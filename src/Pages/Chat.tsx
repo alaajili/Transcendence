@@ -28,6 +28,7 @@ interface MemberProps {
     img: string;
     isAdmin: boolean;
     id: number;
+    roomid: number
 }
 interface intersetchannel {
     name: string;
@@ -174,7 +175,7 @@ const Chat = () => {
     };
     useEffect(() => {
         Getmyrooms();
-    }, []);
+    }, [socket]);
     useEffect(() => {
         // Scroll to the bottom when a new message is added
         if (messagesContainerRef.current) {
@@ -250,10 +251,8 @@ const Chat = () => {
                     img: "http://localhost:3000/" + dto.sender + ".png",
                 },
             ]);
+            navigate('/chat');
         });
-        socket?.on("kick", async (dto: kickuser) => {
-            navigate("/chat");
-        })
     }, [socketRef.current]);
     async function getmemeberoom(roomID: number) {
         const res = await axios.get("http://localhost:3000/chat/roomMemebers?id=" + roomID, {
@@ -279,6 +278,7 @@ const Chat = () => {
                     username: element.username,
                     img: "http://localhost:3000/" + element.id + ".png",
                     isAdmin: me != element.id ? true : false,
+                    roomid: selectedChannel.id,
                 }
                 let userclassSystem: string = "NORMAL"
                 getmember.roomUsers.find((roomuser: any) => {
@@ -369,6 +369,8 @@ const Chat = () => {
                                                 img={user.img}
                                                 isAdmin={user.isAdmin}
                                                 id={user.id}
+                                                socket={socket}
+                                                roomid={user.roomid}
                                                 key={idx}
                                             />))
                                         }

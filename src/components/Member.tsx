@@ -5,15 +5,39 @@ import {
     BsPersonFillSlash,
 } from "react-icons/bs";
 import { Link } from "react-router-dom";
+import { Socket } from "socket.io-client";
 
 interface MemberProps {
     username: string;
     img: string;
     isAdmin: boolean;
     id: number;
+    socket: Socket | null
+    roomid: number
 }
 
-const Member = ({ username, img, isAdmin }: MemberProps) => {
+const Member = ({ username, img, isAdmin, id, roomid, socket }: MemberProps) => {
+    const kickuser = async ()=> {
+        console.log("GOT HERE");
+        const dto = {
+            id: id,
+            roomid: roomid,
+        }
+        const ret = socket?.emit("kickuser", dto, {
+            withCredentials: true,
+        })
+        console.log(ret);
+    }
+    const banuser = async ()=> {
+        const dto = {
+            id: id,
+            roomid: roomid,
+        }
+        const ret = socket?.emit("banuser", dto, {
+            withCredentials: true,
+        })
+        console.log(ret);
+    }
     return (
         <div className="container-1 flex justify-between items-center p-[.6vw]">
             <Link to="/view-profile">
@@ -33,17 +57,19 @@ const Member = ({ username, img, isAdmin }: MemberProps) => {
                         <BsFillVolumeMuteFill
                             className="text-[1.8vw] p-1 cursor-pointer"
                             title="mute"
-                        />
+                            />
                     </button>
                     <button>
                         <BsPersonFillSlash
                             className="text-[1.5vw] p-1 cursor-pointer"
-                            title="block"
+                            onClick={kickuser}
+                            title="kick"
                         />
                     </button>
                     <button>
                         <BsPersonFillDash
                             className="text-[1.5vw] p-1 cursor-pointer"
+                            onClick={banuser}
                             title="ban"
                         />
                     </button>
