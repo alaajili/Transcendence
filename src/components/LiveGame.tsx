@@ -24,7 +24,7 @@ interface LiveGameProps {
 
 const LiveGame = ({ game, index, gamesMap }: LiveGameProps) => {
     return (
-        <Link to="/game" key={index}>
+        <Link key={index} to={`/spectate?roomname=${game.roomName}`}>
             <div
                 className="game-div mt-[1vw] max-sm:mt-[2.5vw] max-md:mt-[2vw] max-lg:mt-[2vw] flex container-1 px-[1.5vw] py-[.5vw] max-sm:py-[1vh] max-md:py-[1vh] max-lg:py-[1vh] justify-between items-center"
                 title="Click to watch the game"

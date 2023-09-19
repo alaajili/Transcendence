@@ -231,7 +231,6 @@ const Dashboard = () => {
         fetchRooms();
     }, [])
 
-
     return (
         <div className="my-[1vw] max-sm:my-[2vw] flex flex-col">
             <div className="first-container h-[8vh] max-sm:h-[6vh] max-md:h-[5vh] max-lg:h-[5vh] max-sm:mb-[.8vh] container-1 mx-[3vw] px-[2vw] flex justify-between items-center">
@@ -381,7 +380,7 @@ const Dashboard = () => {
                                     <Link to="/game">
                                         <div className="card easy-mode flex justify-center items-center">
                                             <p className="font-bold font-satoshi lowercase text-[.8vw] max-sm:text-[1.2vh] max-md:text-[1.2vh] max-lg:text-[1.2vh]">
-                                                EASY
+                                                CLASSIC
                                             </p>
                                         </div>
                                     </Link>

@@ -6,6 +6,8 @@ import axios from "axios";
 import "../styles/Game.css";
 import waiting from "../assets/waiting.json";
 import Lottie from "lottie-react";
+import { useNavigate } from "react-router-dom";
+import { Props } from "react-apexcharts";
 
 interface Ball {
     x: number;
@@ -41,6 +43,8 @@ function Game() {
     const [scale, setScale] = useState<number>(1);
     const [endMatch, setEndMatch] = useState<boolean>(false);
 
+    const navigate = useNavigate();
+
     const handleWindowResize = () => {
         if (window.innerWidth <= 600) {
             setScale(0.4);
@@ -69,7 +73,13 @@ function Game() {
     }, []);
 
     useEffect(() => {
-        console.log("SOCKET ...");
+        socket?.on("disconnect", () => {
+            console.log("disconnect from server");
+            navigate("/add-channel")
+        })
+
+        socket?.emit("join");
+
         socket?.on("join_room", (obj: any) => {
             console.log("JOINING ROOM ...");
             setData(obj.data);
@@ -124,6 +134,11 @@ function Game() {
         socket?.emit("move", { posY, roomName });
     };
 
+    const replay = () => {
+        setStarted(false);
+        setEndMatch(false);
+    }
+
     if (endMatch) {
         socket?.disconnect();
         return (
@@ -136,14 +151,14 @@ function Game() {
                 <div className="flex gap-[3vw] mt-[2vw]">
                     <button
                         className="hover:scale-105 text-white font-bold font-satoshi w-[10vw] h-[3vw] container-1 text-[1vw]"
-                        onClick={() => window.location.reload()}
+                        onClick={() => replay()}
                     >
                         Yes
                     </button>
 
                     <button
                         className="hover:scale-105 text-white font-bold font-satoshi w-[10vw] h-[3vw] container-1 text-[1vw]"
-                        onClick={() => window.location.replace("/home")}
+                        onClick={() => navigate("/home")}
                     >
                         No
                     </button>
@@ -197,6 +212,7 @@ function Game() {
                     leftPlayerY={data?.leftPlayerY}
                     rightPlayerY={data?.rightPlayerY}
                     ball={data?.ball}
+                    scale={scale}
                 />
             </div>
             <div className="flex flex-col items-center">
