@@ -22,6 +22,7 @@ const PublicChannel = ({ name, img, member_size, id, status, password }: room) =
         const res = await axios.post("http://localhost:3000/chat/joinroom", data, {
             withCredentials: true,
         });
+        console.log(res);
         if (res.status == 200)
             console.log("YOU ARE JOIND THE ROOM");
         else

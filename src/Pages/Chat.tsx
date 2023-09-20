@@ -253,6 +253,7 @@ const Chat = () => {
             setSocket(socketRef.current);
         }
         const ret = socket?.on("newmessage", async (dto: messagedto) => {
+            console.log("GOT HERE");
             setMessages((prevMessages) => [
                 ...prevMessages,
                 {
@@ -263,13 +264,15 @@ const Chat = () => {
             ]);
         });
         socket?.on("kick", async (dto: kickuser) => {
-            if (selectedChannel?.id === dto.roomid) {
-                // Create a custom alert modal
-                alert("You have been kicked from the room");
-                location.reload();
+            if (selectedChannel?.id == dto.roomid) {
+               alert("You have been kicked from the room");
+                // location.reload();
             }
         });
-    }, [socketRef.current, selectedChannel]);
+        socket?.on("error", async (val: string)=> {
+            alert(val);
+        })
+    }, [selectedChannel]);
     async function getmemeberoom(roomID: number) {
         const res = await axios.get("http://localhost:3000/chat/roomMemebers?id=" + roomID, {
             withCredentials: true,
