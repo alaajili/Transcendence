@@ -10,13 +10,13 @@ interface room {
     password: string;
 }
 
-interface joinroominter{
+interface joinroominter {
     id: number;
     password: string;
     status: string;
 }
 
-const PublicChannel = ({ name, img, member_size, id, status, password}: room) => {
+const PublicChannel = ({ name, img, member_size, id, status, password }: room) => {
     const navigate = useNavigate()
     const joinroom = async (data: joinroominter) => {
         const res = await axios.post("http://localhost:3000/chat/joinroom", data, {
@@ -24,9 +24,9 @@ const PublicChannel = ({ name, img, member_size, id, status, password}: room) =>
         });
         if (res.status == 200)
             console.log("YOU ARE JOIND THE ROOM");
-    else
-        console.log("ERROR BTICH");
-    navigate('/chat');
+        else
+            console.log("already joined this room");
+        navigate('/chat');
     }
     return (
         <div className="channel-div mt-[1vw] max-sm:mt-[2.5vw] max-md:mt-[2vw] max-lg:mt-[2vw] flex justify-between container-1 px-[1.5vw] py-[.5vw] max-sm:py-[1vh] max-md:py-[1vh] max-lg:py-[1vh] items-center">
@@ -46,7 +46,7 @@ const PublicChannel = ({ name, img, member_size, id, status, password}: room) =>
                 </div>
             </div>
             <button className="join-channel container-1 px-[2vw] py-[.3vw] uppercase font-bold hover:scale-105 text-[.7vw] max-sm:text-[1.1vh] max-md:text-[1.1vh] max-lg:text-[1.1vh]"
-                onClick={()=>{
+                onClick={() => {
                     const data: joinroominter = {
                         id: id,
                         password: password,
@@ -54,7 +54,7 @@ const PublicChannel = ({ name, img, member_size, id, status, password}: room) =>
                     }
                     joinroom(data);
                 }}
-                
+
             >
                 join
             </button>

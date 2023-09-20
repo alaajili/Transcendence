@@ -16,6 +16,7 @@ import axios from "axios";
 import "../styles/AddChannel.css";
 import "../styles/Chat.css";
 import { useNavigate } from "react-router-dom";
+import { alertClasses } from "@mui/material";
 
 interface messagedto {
     message: string;
@@ -57,7 +58,6 @@ const Chat = () => {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
     };
-    const navigate = useNavigate();
     const handleArrowClick = async () => {
         if (inputValue.trim() !== "") {
             setMessages((prevMessages) => [
@@ -74,9 +74,10 @@ const Chat = () => {
                 message: inputValue.trim(),
                 sender: await whoami(),
             };
-            socket?.emit("createMessage", dto, {
+            const r = socket?.emit("createMessage", dto, {
                 withCredentials: true,
             });
+            console.log("value of r is->", r);
         }
     };
 
@@ -136,22 +137,27 @@ const Chat = () => {
             );
             return res.data;
         } catch (error) {
-            console.log(error);
+            alert("error in getting channels rooms")
         }
     }
     async function getdminfos(id: number) {
-        const res = await axios.get(
-            "http://localhost:3000/chat/getdminfos?id=" + id,
-            {
-                withCredentials: true,
-            }
-        );
-        const room = {
-            name: res.data.name,
-            img: res.data.photo,
-            id: res.data.id,
-        };
-        return room;
+        try{
+            const res = await axios.get(
+                "http://localhost:3000/chat/getdminfos?id=" + id,
+                {
+                    withCredentials: true,
+                }
+            );
+            const room = {
+                name: res.data.name,
+                img: res.data.photo,
+                id: res.data.id,
+            };
+            return room;
+        }
+        catch{
+            alert("error in getting dm infos")
+        }
     }
     const Getmyrooms = async () => {
         const rooms = await getRoomChannels();
@@ -229,10 +235,14 @@ const Chat = () => {
 
     const socketRef = useRef<Socket | null>(null);
     async function whoami() {
-        const me = await axios.get("http://localhost:3000/users/me", {
-            withCredentials: true,
-        });
-        return me.data.id;
+        try {
+            const me = await axios.get("http://localhost:3000/users/me", {
+                withCredentials: true,
+            });
+            return me.data.id;            
+        } catch (error) {
+            alert("error in whoiam")
+        }
     }
 
     useEffect(() => {
@@ -240,8 +250,8 @@ const Chat = () => {
             socketRef.current = io("http://localhost:3000", {
                 withCredentials: true,
             });
+            setSocket(socketRef.current);
         }
-        setSocket(socketRef.current);
         const ret = socket?.on("newmessage", async (dto: messagedto) => {
             setMessages((prevMessages) => [
                 ...prevMessages,
@@ -251,9 +261,15 @@ const Chat = () => {
                     img: "http://localhost:3000/" + dto.sender + ".png",
                 },
             ]);
-            navigate('/chat');
         });
-    }, [socketRef.current]);
+        socket?.on("kick", async (dto: kickuser) => {
+            if (selectedChannel?.id === dto.roomid) {
+                // Create a custom alert modal
+                alert("You have been kicked from the room");
+                location.reload();
+            }
+        });
+    }, [socketRef.current, selectedChannel]);
     async function getmemeberoom(roomID: number) {
         const res = await axios.get("http://localhost:3000/chat/roomMemebers?id=" + roomID, {
             withCredentials: true,
