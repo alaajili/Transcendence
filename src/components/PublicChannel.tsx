@@ -1,7 +1,10 @@
-import Apollo from "../assets/Apollo.jpg";
 import axios from "axios";
+import { useState } from "react";
+import { BsLockFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-interface room {
+import { PasswordPopup } from "../Pages/index";
+
+interface Room {
     name: string;
     img: string;
     member_size: number;
@@ -10,25 +13,39 @@ interface room {
     password: string;
 }
 
-interface joinroominter {
+interface Joinroominter {
     id: number;
     password: string;
     status: string;
 }
 
-const PublicChannel = ({ name, img, member_size, id, status, password }: room) => {
-    const navigate = useNavigate()
-    const joinroom = async (data: joinroominter) => {
-        const res = await axios.post("http://localhost:3000/chat/joinroom", data, {
-            withCredentials: true,
-        });
-        console.log(res);
-        if (res.status == 200)
-            console.log("YOU ARE JOIND THE ROOM");
-        else
-            console.log("already joined this room");
-        navigate('/chat');
-    }
+const PublicChannel = ({
+    name,
+    img,
+    member_size,
+    id,
+    status,
+    password,
+}: Room) => {
+    const navigate = useNavigate();
+    const joinroom = async (data: Joinroominter) => {
+        const res = await axios.post(
+            "http://localhost:3000/chat/joinroom",
+            data,
+            {
+                withCredentials: true,
+            }
+        );
+        if (res.status == 200) console.log("YOU ARE JOIND THE ROOM");
+        else console.log("already joined this room");
+        navigate("/chat");
+    };
+
+    const [popup, setPopup] = useState(false);
+    const togglePopup = () => {
+        setPopup(!popup);
+    };
+
     return (
         <div className="channel-div mt-[1vw] max-sm:mt-[2.5vw] max-md:mt-[2vw] max-lg:mt-[2vw] flex justify-between container-1 px-[1.5vw] py-[.5vw] max-sm:py-[1vh] max-md:py-[1vh] max-lg:py-[1vh] items-center">
             <div className="flex items-center gap-5 max-sm:gap-[1vw] max-md:gap-[1vw] max-lg:gap-[1vw]">
@@ -46,19 +63,27 @@ const PublicChannel = ({ name, img, member_size, id, status, password }: room) =
                     </h3>
                 </div>
             </div>
-            <button className="join-channel container-1 px-[2vw] py-[.3vw] uppercase font-bold hover:scale-105 text-[.7vw] max-sm:text-[1.1vh] max-md:text-[1.1vh] max-lg:text-[1.1vh]"
-                onClick={() => {
-                    const data: joinroominter = {
-                        id: id,
-                        password: password,
-                        status: status,
-                    }
-                    joinroom(data);
-                }}
 
-            >
-                join
-            </button>
+            <div className="flex items-center justify-between gap-[1vw]">
+                {status == "protected" && <BsLockFill className="text-[1vw]" />}
+                <button
+                    className="join-channel container-1 px-[2vw] py-[.3vw] uppercase font-bold hover:scale-105 text-[.7vw] max-sm:text-[1.1vh] max-md:text-[1.1vh] max-lg:text-[1.1vh]"
+                    onClick={() => {
+                        const data: Joinroominter = {
+                            id: id,
+                            password: password,
+                            status: status,
+                        };
+                        joinroom(data);
+                        if (status == "protected") {
+                            togglePopup();
+                        }
+                    }}
+                >
+                    join
+                </button>
+            </div>
+            {popup && <PasswordPopup togglePopup={togglePopup} />}
         </div>
     );
 };
