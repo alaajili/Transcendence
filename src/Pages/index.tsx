@@ -16,3 +16,4 @@ export { default as AddChannel } from "../components/AddChannel";
 export { default as Member } from "../components/Member";
 export { default as MatchCard } from "../components/MatchCard";
 export { default as PasswordPopup } from "../components/PasswordPopup";
+export { default as AddFriend } from "../components/AddFriend";

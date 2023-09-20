@@ -39,7 +39,7 @@ const Member = ({ username, img, isAdmin, id, roomid, socket }: MemberProps) => 
         console.log(ret);
     }
     return (
-        <div className="container-1 flex justify-between items-center p-[.6vw]">
+        <div className="container-1 flex justify-between items-center p-[.6vw] mt-[.5vw]">
             <Link to="/view-profile">
                 <div className="flex justify-between items-center gap-[.6vw] max-sm:gap-[2vw] max-md:gap-[2vw] max-lg:gap-[2vw]">
                     <img

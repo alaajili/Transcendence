@@ -10,7 +10,7 @@ import {
 } from "react-icons/bs";
 import { FiPlus } from "react-icons/fi";
 import { useEffect, useRef, useState } from "react";
-import { MessageContainer, AddChannel, Member } from "./index";
+import { MessageContainer, AddChannel, Member, AddFriend } from "./index";
 import { Socket, io } from "socket.io-client";
 import axios from "axios";
 import "../styles/AddChannel.css";
@@ -29,7 +29,7 @@ interface MemberProps {
     img: string;
     isAdmin: boolean;
     id: number;
-    roomid: number
+    roomid: number;
 }
 interface intersetchannel {
     name: string;
@@ -52,8 +52,9 @@ const Chat = () => {
     const [channels, setChannels] = useState<intersetchannel[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [messages, setMessages] = useState<intermessages[]>([]);
-    const [member, setMember] = useState<MemberProps[]>([])
-    const [selectedChannel, setSelectedChannel] = useState<intersetchannel | null>(null);
+    const [member, setMember] = useState<MemberProps[]>([]);
+    const [selectedChannel, setSelectedChannel] =
+        useState<intersetchannel | null>(null);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
@@ -108,8 +109,12 @@ const Chat = () => {
     };
 
     const [popup, setPopup] = useState(false);
+    const [addFriendPopup, setAddFriendPopup] = useState(false);
     const togglePopup = () => {
         setPopup(!popup);
+    };
+    const toggleAddFriendPopup = () => {
+        setAddFriendPopup(!addFriendPopup);
     };
 
     const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -137,11 +142,11 @@ const Chat = () => {
             );
             return res.data;
         } catch (error) {
-            alert("error in getting channels rooms")
+            alert("error in getting channels rooms");
         }
     }
     async function getdminfos(id: number) {
-        try{
+        try {
             const res = await axios.get(
                 "http://localhost:3000/chat/getdminfos?id=" + id,
                 {
@@ -154,9 +159,8 @@ const Chat = () => {
                 id: res.data.id,
             };
             return room;
-        }
-        catch{
-            alert("error in getting dm infos")
+        } catch {
+            alert("error in getting dm infos");
         }
     }
     const Getmyrooms = async () => {
@@ -195,7 +199,7 @@ const Chat = () => {
     useEffect(() => {
         async function getandSetmsgchannel() {
             if (selectedChannel?.id !== undefined) {
-                const id: number = await whoami()
+                const id: number = await whoami();
                 let messages: {
                     message: string;
                     isSentByMe: boolean;
@@ -239,9 +243,9 @@ const Chat = () => {
             const me = await axios.get("http://localhost:3000/users/me", {
                 withCredentials: true,
             });
-            return me.data.id;            
+            return me.data.id;
         } catch (error) {
-            alert("error in whoiam")
+            alert("error in whoiam");
         }
     }
 
@@ -271,46 +275,58 @@ const Chat = () => {
         });
     }, [socketRef.current, selectedChannel]);
     async function getmemeberoom(roomID: number) {
-        const res = await axios.get("http://localhost:3000/chat/roomMemebers?id=" + roomID, {
-            withCredentials: true,
-        })
+        const res = await axios.get(
+            "http://localhost:3000/chat/roomMemebers?id=" + roomID,
+            {
+                withCredentials: true,
+            }
+        );
         return res.data;
     }
     const setMembers = async () => {
         let getmember: any;
         if (selectedChannel?.id != undefined) {
             getmember = await getmemeberoom(selectedChannel?.id);
-            const classSystem = new Map<string, number>([["NORMAL", 0], ["ADMIN", 1], ["OWNER", 2]]);
+            const classSystem = new Map<string, number>([
+                ["NORMAL", 0],
+                ["ADMIN", 1],
+                ["OWNER", 2],
+            ]);
             let members: MemberProps[] = [];
             const me: number = await whoami();
             let mystatus: string;
             getmember.roomUsers.find((element: any) => {
-                if (element.userId == me)
-                    mystatus = element.status
-            })
-            getmember.members.forEach((element: { username: string, id: number }) => {
-                const newmember: MemberProps = {
-                    id: element.id,
-                    username: element.username,
-                    img: "http://localhost:3000/" + element.id + ".png",
-                    isAdmin: me != element.id ? true : false,
-                    roomid: selectedChannel.id,
-                }
-                let userclassSystem: string = "NORMAL"
-                getmember.roomUsers.find((roomuser: any) => {
-                    if (roomuser.userId == element.id)
-                        userclassSystem = roomuser.status
-                })
-                if (me !== element.id && classSystem.get(userclassSystem)! > classSystem.get(mystatus)!)
-                    newmember.isAdmin = false;
-                members = [...members, newmember];
+                if (element.userId == me) mystatus = element.status;
             });
+            getmember.members.forEach(
+                (element: { username: string; id: number }) => {
+                    const newmember: MemberProps = {
+                        id: element.id,
+                        username: element.username,
+                        img: "http://localhost:3000/" + element.id + ".png",
+                        isAdmin: me != element.id ? true : false,
+                        roomid: selectedChannel.id,
+                    };
+                    let userclassSystem: string = "NORMAL";
+                    getmember.roomUsers.find((roomuser: any) => {
+                        if (roomuser.userId == element.id)
+                            userclassSystem = roomuser.status;
+                    });
+                    if (
+                        me !== element.id &&
+                        classSystem.get(userclassSystem)! >
+                            classSystem.get(mystatus)!
+                    )
+                        newmember.isAdmin = false;
+                    members = [...members, newmember];
+                }
+            );
             setMember(members);
         }
-    }
+    };
     useEffect(() => {
         setMembers();
-    }, [selectedChannel])
+    }, [selectedChannel]);
     return (
         <div className="parent flex flex-row justify-center items-center gap-[1vw] h-screen max-sm:flex-col max-md:flex-col">
             <div className="child-container-1">
@@ -329,10 +345,11 @@ const Chat = () => {
                         {channels.map((channel, idx) => (
                             <div
                                 key={idx}
-                                className={`channel flex relative top-0 items-center px-[1vw] max-sm:px-[3vw] max-md:px-[3vw] scroll-auto h-[8vh] max-sm:h-[5vh] max-md:h-[5vh] hover:cursor-pointer ${selectedChannel === channel
+                                className={`channel flex relative top-0 items-center px-[1vw] max-sm:px-[3vw] max-md:px-[3vw] scroll-auto h-[8vh] max-sm:h-[5vh] max-md:h-[5vh] hover:cursor-pointer ${
+                                    selectedChannel === channel
                                         ? "active-channel"
                                         : ""
-                                    }`}
+                                }`}
                                 onClick={() => setSelectedChannel(channel)}
                             >
                                 <img
@@ -369,7 +386,7 @@ const Chat = () => {
                         </h3>
 
                         <div className="menu--right" role="navigation">
-                            <div className="menuToggle">
+                            <div className="menuToggle relative h-[90vh]">
                                 <input type="checkbox" />
                                 <p className="members-text font-satoshi font-medium uppercase text-[1vw]">
                                     members
@@ -378,23 +395,35 @@ const Chat = () => {
                                 <span></span>
                                 <span></span>
                                 <ul className="menuItem member-menu absolute w-[30vw] h-[91vh] pt-[3vw] pr-[9vw] pl-[1vw]">
-                                    <li className="h-full overflow-y-scroll no-scrollbar mt-[3.3vh] pb-[5.5vh]">
-                                        {
-                                            member.map((user: MemberProps, idx) => (<Member
-                                                username={user.username}
-                                                img={user.img}
-                                                isAdmin={user.isAdmin}
-                                                id={user.id}
-                                                socket={socket}
-                                                roomid={user.roomid}
-                                                key={idx}
-                                            />))
-                                        }
+                                    <li className="overflow-y-scroll no-scrollbar mt-[3.3vh] pb-[2.5vh] h-[72.4vh]">
+                                        {member.map(
+                                            (user: MemberProps, idx) => (
+                                                <Member
+                                                    username={user.username}
+                                                    img={user.img}
+                                                    isAdmin={user.isAdmin}
+                                                    id={user.id}
+                                                    socket={socket}
+                                                    roomid={user.roomid}
+                                                    key={idx}
+                                                />
+                                            )
+                                        )}
                                     </li>
+                                    <div className="line absolute bottom[9.5vh]"></div>
+                                    <a onClick={toggleAddFriendPopup}>
+                                        <div className="plus-icon w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[4vw] max-md:h-[4vw] rounded-full absolute bottom-[2vh] right-[10vw] max-sm:bottom-[1vh] max-sm:right-[3vw] max-md:bottom-[1vh] max-md:right-[2vw] flex justify-center items-center cursor-pointer">
+                                            <FiPlus className="text-[1.2vw] max-sm:text-[2vw] max-md:text-[2vw]" />
+                                        </div>
+                                    </a>
                                 </ul>
                             </div>
                         </div>
-
+                        {addFriendPopup && (
+                            <AddFriend
+                                toggleAddFriendPopup={toggleAddFriendPopup}
+                            />
+                        )}
                         <span className="line absolute top-[8vh] max-sm:top-[5vh] max-md:top-[5vh]"></span>
                         <span className="line absolute bottom-[9vh] max-sm:bottom-[5vh] max-md:bottom-[5vh]"></span>
                         <div className="h-[72.5vh] max-sm:h-[35vh] max-md:h-[35vh] w-full mb-[1vh] max-sm:mb-0 max-md:mb-0 px-[1.5vw] overflow-y-scroll no-scrollbar overflow-hidden">
