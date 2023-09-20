@@ -22,7 +22,7 @@
 .overlay {
 	background: rgba(16, 16, 16, 0.75);
 	backdrop-filter: blur(1.5px);
-	z-index: 1;
+	z-index: 10;
 }
 
 .pop-up-container {
