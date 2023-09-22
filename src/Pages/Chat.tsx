@@ -1,15 +1,8 @@
 import Apollo from "../assets/Apollo.jpg";
 import noChat from "../assets/no-chat.svg";
-import {
-    BsCurrencyRupee,
-    BsFillLightningChargeFill,
-    BsFillVolumeMuteFill,
-    BsPersonFillDash,
-    BsPersonFillSlash,
-    BsSendFill,
-} from "react-icons/bs";
+import {BsSendFill} from "react-icons/bs";
 import { FiPlus } from "react-icons/fi";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MessageContainer, AddChannel, Member, AddFriend } from "./index";
 import { Socket, io } from "socket.io-client";
 import axios from "axios";
@@ -17,6 +10,7 @@ import "../styles/AddChannel.css";
 import "../styles/Chat.css";
 import { useNavigate } from "react-router-dom";
 import { alertClasses } from "@mui/material";
+
 
 interface messagedto {
     message: string;
@@ -89,7 +83,6 @@ const Chat = () => {
     };
 
     const addChannel = async (currentChannel: intersetchannel) => {
-        console.log(currentChannel);
         const newChannel = [...channels, currentChannel];
         try {
             const formData = new FormData();
@@ -105,9 +98,10 @@ const Chat = () => {
         } catch (error) {
             console.log(error);
         }
-        setChannels(newChannel);
+        await Getmyrooms()
     };
-
+    useEffect( ()=> {
+    }, [selectedChannel]);
     const [popup, setPopup] = useState(false);
     const [addFriendPopup, setAddFriendPopup] = useState(false);
     const togglePopup = () => {
@@ -185,7 +179,7 @@ const Chat = () => {
     };
     useEffect(() => {
         Getmyrooms();
-    }, [socket]);
+    }, [selectedChannel]);
     useEffect(() => {
         // Scroll to the bottom when a new message is added
         if (messagesContainerRef.current) {
@@ -195,10 +189,9 @@ const Chat = () => {
     }, [messages]);
 
     //-------------------------------------------casper-------------------------------------//
-
     useEffect(() => {
         async function getandSetmsgchannel() {
-            if (selectedChannel?.id !== undefined) {
+            if (selectedChannel !== null) {
                 const id: number = await whoami();
                 let messages: {
                     message: string;
@@ -287,8 +280,8 @@ const Chat = () => {
         return res.data;
     }
     const setMembers = async () => {
-        let getmember: any;
-        if (selectedChannel?.id != undefined) {
+        if (selectedChannel != null) {
+            let getmember: any;
             getmember = await getmemeberoom(selectedChannel?.id);
             const classSystem = new Map<string, number>([
                 ["NORMAL", 0],
@@ -413,18 +406,22 @@ const Chat = () => {
                                             )
                                         )}
                                     </li>
+                                    <SocketContext.Provider value={socket}>
                                     <div className="line absolute bottom[9.5vh]"></div>
                                     <a onClick={toggleAddFriendPopup}>
                                         <div className="plus-icon w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[4vw] max-md:h-[4vw] rounded-full absolute bottom-[2vh] right-[10vw] max-sm:bottom-[1vh] max-sm:right-[3vw] max-md:bottom-[1vh] max-md:right-[2vw] flex justify-center items-center cursor-pointer">
                                             <FiPlus className="text-[1.2vw] max-sm:text-[2vw] max-md:text-[2vw]" />
                                         </div>
                                     </a>
+                                    </SocketContext.Provider>
                                 </ul>
                             </div>
                         </div>
                         {addFriendPopup && (
                             <AddFriend
                                 toggleAddFriendPopup={toggleAddFriendPopup}
+                                socket={socket}
+                                roomid={selectedChannel.id}
                             />
                         )}
                         <span className="line absolute top-[8vh] max-sm:top-[5vh] max-md:top-[5vh]"></span>
@@ -489,5 +486,6 @@ const Chat = () => {
         </div>
     );
 };
+export const SocketContext = React.createContext<Socket | null>(null);
 
 export default Chat;

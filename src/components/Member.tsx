@@ -18,7 +18,6 @@ interface MemberProps {
 
 const Member = ({ username, img, isAdmin, id, roomid, socket }: MemberProps) => {
     const kickuser = async ()=> {
-        console.log("GOT HERE");
         const dto = {
             id: id,
             roomid: roomid,
@@ -40,7 +39,7 @@ const Member = ({ username, img, isAdmin, id, roomid, socket }: MemberProps) => 
     }
     return (
         <div className="container-1 flex justify-between items-center p-[.6vw] mt-[.5vw]">
-            <Link to="/view-profile">
+            <Link to={`/view-profile?id=${id}`}>
                 <div className="flex justify-between items-center gap-[.6vw] max-sm:gap-[2vw] max-md:gap-[2vw] max-lg:gap-[2vw]">
                     <img
                         className="w-[2.5vw] h-[2.5vw] max-sm:w-[7vw] max-sm:h-[7vw] max-md:w-[4vw] max-md:h-[4vw] max-lg:w-[4vw] max-lg:h-[4vw] rounded-full"

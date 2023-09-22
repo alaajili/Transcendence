@@ -19,7 +19,7 @@ import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import "../styles/Dashboard.css";
 
-import Apollo from "../assets/apollo.jpg";
+import Apollo from "../assets/Apollo.jpg";
 
 interface User {
     id: number;
@@ -59,7 +59,6 @@ interface room {
     members_size: number;
     name: string;
     state: string;
-    password: string;
 }
 const Dashboard = () => {
     const [isHovered, setIsHovered] = useState(null);
@@ -222,9 +221,16 @@ const Dashboard = () => {
                 const rooms = res.data;
                 let setrooms: room[] = [];
                 rooms.forEach((element: room) => {
-                    console.log("KKKKKKK", element);
-                    setrooms = [...setrooms, { id: element.id, photo: element.photo, members_size: element.members_size, name: element.name, state: element.state, password: element.password}]
-                });
+                    setrooms = [
+                        ...setrooms,
+                        {
+                          id: element.id,
+                          photo: element.photo,
+                          members_size: element.members_size,
+                          name: element.name,
+                          state: element.state,
+                        },
+                      ]});
                 setRooms(setrooms);
             } catch (error) {
 
@@ -429,12 +435,9 @@ const Dashboard = () => {
                                     member_size={room.members_size}
                                     id={room.id}
                                     status={room.state}
-                                    password={room.password}
                                     key={room.id}
                                 />
                             ))}
-							<PublicChannel name="test" img={Apollo} member_size={24} id={1} status="protected" password="123" key={2}/>
-							<PublicChannel name="test" img={Apollo} member_size={24} id={1} status="public" password="123" key={2}/>
                         </div>
                         <div className="forth-container container-1 mt-[1vw] p-[1.5vw] max-sm:p-[3vw] w-1/2 overflow-y-scroll no-scrollbar max-sm:w-full max-sm:h-full max-md:w-full max-md:h-full">
                             <h2 className="font-bold font-satoshi uppercase text-[.8vw] max-sm:text-[1.2vh] max-md:text-[1.2vh] max-lg:text-[1.2vh]">

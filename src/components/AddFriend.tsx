@@ -1,11 +1,52 @@
 import { Link } from "react-router-dom";
-import Apollo from "../assets/apollo.jpg";
-
+import Apollo from "../assets/Apollo.jpg";
+import axios from "axios";
+import { useContext, useEffect, useState } from "react";
+import { Socket } from "socket.io-client";
+import { SocketContext } from "../Pages/Chat";
 interface AddFriendProps {
     toggleAddFriendPopup: () => void;
+    socket : Socket | null;
+    roomid: number;
+}
+interface Friends {
+    id: number;
+    photo: string;
+    username: string;
 }
 
-const AddFriend = ({ toggleAddFriendPopup }: AddFriendProps) => {
+const AddFriend = ({ toggleAddFriendPopup, socket, roomid}: AddFriendProps) => {
+    const [friend, setFreinds] = useState<Friends[]>([]);
+    const getallmyfriends = async ()=> {
+        const res = await axios.get(
+            "http://localhost:3000/users/me/friends",
+            {
+                withCredentials: true,
+            }
+        );
+        return res.data;
+    }
+    const setallmyfreindsPopup = async ()=> {
+        const allmyfreinds = await getallmyfriends();
+        console.log(allmyfreinds);
+        let members: Friends[] = [];
+        allmyfreinds.friends.forEach((user: Friends) => {
+            members = [...members, {id: user.id, photo: user.photo, username: user.username}]
+        })
+        setFreinds(members);
+    }
+    useEffect(() => {
+        setallmyfreindsPopup();
+    }, [])
+    const handleInviteClick = async (id: number) => {
+        const dto = {
+            roomid: roomid,
+            userid: id,
+        }
+        socket?.emit("invite", dto, {
+            withCredentials: true,
+        });
+    }
     return (
         <div className="pop-up">
             <div className="overlay">
@@ -17,24 +58,32 @@ const AddFriend = ({ toggleAddFriendPopup }: AddFriendProps) => {
                                     Invite Friends
                                 </h3>
                                 <div className="flex flex-col items-center justify-start h-[20vw] overflow-y-scroll no-scrollbar overflow-hidden pb-[1vw]">
-                                    <div className="w-full container-1 flex justify-between items-center py-[.6vw] px-[1vw]">
-                                        <Link to="/view-profile">
-                                            <div className="flex justify-between items-center gap-[.6vw] max-sm:gap-[2vw] max-md:gap-[2vw] max-lg:gap-[2vw]">
-                                                <img
-                                                    className="w-[2.5vw] h-[2.5vw] max-sm:w-[7vw] max-sm:h-[7vw] max-md:w-[4vw] max-md:h-[4vw] max-lg:w-[4vw] max-lg:h-[4vw] rounded-full"
-                                                    src={Apollo}
-                                                />
-                                                <p className="font-satoshi font-medium hover:underline text-[.9vw] max-sm:text-[1vh] max-md:text-[1.1vh] max-lg:text-[1.1vh]">
-                                                    hahaha
-                                                </p>
-                                            </div>
-                                        </Link>
-                                        <button className="container-1 rounded-[.3vw] max-sm:rounded-[.2vw] max-md:rounded-[.2vw] max-lg:rounded-[.2vw] max-xl:rounded-[.2vw] px-[1.2vw] max-sm:px-[1vw] max-md:px-[1vw] max-lg:px-[1vw] max-xl:px-[1vw] py-[.2vw] max-sm:py-[.5vw] max-md:py-[.5vw] max-lg:py-[.5vw] max-xl:py-[.5vw] hover:scale-105">
-                                            <h3 className=" font-bold text-[.8vw] max-sm:text-[1.5vw] max-md:text-[1.5vw] max-lg:text-[1.5vw] max-xl:text-[1.5vw]">
-                                                INVITE
-                                            </h3>
-                                        </button>
-                                    </div>
+                                {
+                                    friend.map((user, idx) => (
+                                        <div key={user.id} className="w-full container-1 flex justify-between items-center py-[.6vw] px-[1vw]">
+                                            <Link to={`/view-profile?id=${user.id}`}>
+                                                <div className="flex justify-between items-center gap-[.6vw] max-sm:gap-[2vw] max-md:gap-[2vw] max-lg:gap-[2vw]">
+                                                    <img
+                                                        className="w-[2.5vw] h-[2.5vw] max-sm:w-[7vw] max-sm:h-[7vw] max-md:w-[4vw] max-md:h-[4vw] max-lg:w-[4vw] max-lg:h-[4vw] rounded-full"
+                                                        src={user.photo}
+                                                    />
+                                                    <p
+                                                        className="font-satoshi font-medium hover:underline text-[.9vw] max-sm:text-[1vh] max-md:text-[1.1vh] max-lg:text-[1.1vh]"
+                                                    >
+                                                        {user.username}
+                                                    </p>
+                                                </div>
+                                            </Link>
+                                            <button className="container-1 rounded-[.3vw] max-sm:rounded-[.2vw] max-md:rounded-[.2vw] max-lg:rounded-[.2vw] max-xl:rounded-[.2vw] px-[1.2vw] max-sm:px-[1vw] max-md:px-[1vw] max-lg:px-[1vw] max-xl:px-[1vw] py-[.2vw] max-sm:py-[.5vw] max-md:py-[.5vw] max-lg:py-[.5vw] max-xl:py-[.5vw] hover:scale-105"
+                                            onClick={() => handleInviteClick(user.id)}
+                                            >
+                                                <h3 className="font-bold text-[.8vw] max-sm:text-[1.5vw] max-md:text-[1.5vw] max-lg:text-[1.5vw] max-xl:text-[1.5vw]">
+                                                    INVITE
+                                                </h3>
+                                            </button>
+                                        </div>
+                                    ))
+                                }
                                 </div>
                                 <div className="max-sm:mt-[1vw] max-md:pt-[.5vw]">
                                     <div className="child flex items-center justify-end gap-[2vw] max-sm:gap-[8vw] max-md:gap-[6vw] max-lg:gap-[2vw] max-xl:gap-[2vw]">

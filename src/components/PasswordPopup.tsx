@@ -2,18 +2,17 @@ import { useState } from "react";
 
 interface PasswordPopupProps {
     togglePopup: () => void;
+    setPassword: any;
+    handleSave: any;
 }
 
-const PasswordPopup = ({ togglePopup }: PasswordPopupProps) => {
-    const [password, setPassword] = useState("");
+const PasswordPopup = ({ togglePopup, setPassword, handleSave }: PasswordPopupProps) => {
 
-    const handleChange = (e: any) => {
-        setPassword(e.target.value);
+
+    const handleChange = async (e: any) => {
+        await setPassword(e.target.value);
     };
 
-    const handleSave = () => {
-        setPassword(password);
-    };
 
     return (
         <div className="pop-up">

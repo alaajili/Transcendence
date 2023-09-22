@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BsLockFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { PasswordPopup } from "../Pages/index";
@@ -10,13 +10,12 @@ interface Room {
     member_size: number;
     id: number;
     status: string;
-    password: string;
 }
 
 interface Joinroominter {
     id: number;
-    password: string;
     status: string;
+    password?: string;
 }
 
 const PublicChannel = ({
@@ -25,9 +24,11 @@ const PublicChannel = ({
     member_size,
     id,
     status,
-    password,
 }: Room) => {
+    const [password, setPassword] = useState(''); // Initialize password with roompassword
     const navigate = useNavigate();
+    const [room, setRoom] = useState<Joinroominter | null> (null);
+    // const [roompassword, setRoompassword] = useState<string>('');
     const joinroom = async (data: Joinroominter) => {
         const res = await axios.post(
             "http://localhost:3000/chat/joinroom",
@@ -42,8 +43,15 @@ const PublicChannel = ({
     };
 
     const [popup, setPopup] = useState(false);
-    const togglePopup = () => {
+    const togglePopup = async () => {
         setPopup(!popup);
+    };
+    useEffect( ()=>{
+        joinroom(room!);
+    }, [room])
+
+    const handleSave =() => {
+        setPassword(password);
     };
 
     return (
@@ -71,19 +79,20 @@ const PublicChannel = ({
                     onClick={() => {
                         const data: Joinroominter = {
                             id: id,
-                            password: password,
                             status: status,
                         };
-                        joinroom(data);
                         if (status == "protected") {
-                            togglePopup();
+                            togglePopup()
+                            
                         }
+                        else
+                            setRoom(data);
                     }}
                 >
                     join
                 </button>
             </div>
-            {popup && <PasswordPopup togglePopup={togglePopup} />}
+            {popup && <PasswordPopup togglePopup={togglePopup} setPassword={setPassword} handleSave={handleSave} />}
         </div>
     );
 };
