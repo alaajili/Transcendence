@@ -18,6 +18,7 @@ interface messagedto {
     img: string;
     sender: number;
 }
+
 interface MemberProps {
     username: string;
     img: string;
@@ -25,6 +26,7 @@ interface MemberProps {
     id: number;
     roomid: number;
 }
+
 interface intersetchannel {
     name: string;
     img: string | File;
@@ -32,15 +34,18 @@ interface intersetchannel {
     status: string;
     password: string;
 }
+
 interface intermessages {
     message: string;
     isSentByMe: boolean;
     img: string;
 }
+
 interface kickuser {
     id: number;
     roomid: number;
 }
+
 const Chat = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [channels, setChannels] = useState<intersetchannel[]>([]);
@@ -126,6 +131,7 @@ const Chat = () => {
             console.error(error);
         }
     }
+
     async function getChannelmsg(id: any) {
         try {
             const res = await axios.get(
@@ -139,6 +145,7 @@ const Chat = () => {
             alert("error in getting channels rooms");
         }
     }
+
     async function getdminfos(id: number) {
         try {
             const res = await axios.get(
@@ -157,6 +164,7 @@ const Chat = () => {
             alert("error in getting dm infos");
         }
     }
+
     const Getmyrooms = async () => {
         const rooms = await getRoomChannels();
         let newchannel: any[] = [];
@@ -177,9 +185,15 @@ const Chat = () => {
             }
         });
     };
+
     useEffect(() => {
         Getmyrooms();
+<<<<<<< HEAD
     }, [selectedChannel]);
+=======
+    }, [socket]);
+
+>>>>>>> refs/remotes/origin/main
     useEffect(() => {
         // Scroll to the bottom when a new message is added
         if (messagesContainerRef.current) {
@@ -262,14 +276,15 @@ const Chat = () => {
         });
         socket?.on("kick", async (dto: kickuser) => {
             if (selectedChannel?.id == dto.roomid) {
-               alert("You have been kicked from the room");
+                alert("You have been kicked from the room");
                 // location.reload();
             }
         });
-        socket?.on("error", async (val: string)=> {
+        socket?.on("error", async (val: string) => {
             alert(val);
-        })
+        });
     }, [selectedChannel]);
+
     async function getmemeberoom(roomID: number) {
         const res = await axios.get(
             "http://localhost:3000/chat/roomMemebers?id=" + roomID,
@@ -279,6 +294,7 @@ const Chat = () => {
         );
         return res.data;
     }
+
     const setMembers = async () => {
         if (selectedChannel != null) {
             let getmember: any;
@@ -320,9 +336,11 @@ const Chat = () => {
             setMember(members);
         }
     };
+
     useEffect(() => {
         setMembers();
     }, [selectedChannel]);
+
     return (
         <div className="parent flex flex-row justify-center items-center gap-[1vw] h-screen max-sm:flex-col max-md:flex-col">
             <div className="child-container-1">
@@ -381,7 +399,9 @@ const Chat = () => {
                             {selectedChannel.name}
                         </h3>
 
-                        <div className="menu--right" role="navigation">
+                        {}
+
+                        {/* <div className="menu--right" role="navigation">
                             <div className="menuToggle relative h-[90vh]">
                                 <input type="checkbox" />
                                 <p className="members-text font-satoshi font-medium uppercase text-[1vw]">
@@ -416,6 +436,7 @@ const Chat = () => {
                                     </SocketContext.Provider>
                                 </ul>
                             </div>
+<<<<<<< HEAD
                         </div>
                         {addFriendPopup && (
                             <AddFriend
@@ -424,6 +445,19 @@ const Chat = () => {
                                 roomid={selectedChannel.id}
                             />
                         )}
+=======
+                            {addFriendPopup && (
+                                <AddFriend
+                                    toggleAddFriendPopup={toggleAddFriendPopup}
+                                />
+                            )}
+                        </div> */}
+
+                        <button className="container-1 absolute top-[2.2vh] right-[2vw] px-[1.5vw] py-[.4vw] uppercase font-bold hover:scale-105 text-[.7vw]">
+                            challenge
+                        </button>
+
+>>>>>>> refs/remotes/origin/main
                         <span className="line absolute top-[8vh] max-sm:top-[5vh] max-md:top-[5vh]"></span>
                         <span className="line absolute bottom-[9vh] max-sm:bottom-[5vh] max-md:bottom-[5vh]"></span>
                         <div className="h-[72.5vh] max-sm:h-[35vh] max-md:h-[35vh] w-full mb-[1vh] max-sm:mb-0 max-md:mb-0 px-[1.5vw] overflow-y-scroll no-scrollbar overflow-hidden">
