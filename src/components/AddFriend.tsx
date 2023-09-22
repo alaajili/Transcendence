@@ -4,6 +4,12 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import { SocketContext } from "../Pages/Chat";
+
+//-------------------PROPS---------------------
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+//-------------------PROPS---------------------
+
 interface AddFriendProps {
     toggleAddFriendPopup: () => void;
     socket : Socket | null;
@@ -35,6 +41,27 @@ const AddFriend = ({ toggleAddFriendPopup, socket, roomid}: AddFriendProps) => {
         })
         setFreinds(members);
     }
+
+    const notify = (val: string) =>toast.success(`🦄 ${val}`, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
+    const badnotify = (val: string) =>toast.error(`😫 ${val}!`, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     useEffect(() => {
         setallmyfreindsPopup();
     }, [])
@@ -47,6 +74,14 @@ const AddFriend = ({ toggleAddFriendPopup, socket, roomid}: AddFriendProps) => {
             withCredentials: true,
         });
     }
+    useEffect(() => {   
+        socket?.on("success", () => {
+            notify("request sent");
+        });
+        socket?.on("warning", ()=> {
+            badnotify("request already sent");
+        })
+}, [])
     return (
         <div className="pop-up">
             <div className="overlay">
@@ -102,6 +137,7 @@ const AddFriend = ({ toggleAddFriendPopup, socket, roomid}: AddFriendProps) => {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     );
 };
