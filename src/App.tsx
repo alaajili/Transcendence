@@ -13,6 +13,7 @@ import Game from "./Game/Game";
 import { setOnline, recieveNotification } from "./components/mainGateway";
 import Practice from "./Game/Practice";
 import Spectate from "./Game/Spectate";
+import { ToastContainer } from "react-toastify";
 
 const App = () => {
     setOnline();
@@ -46,6 +47,7 @@ const App = () => {
                 />
                 <Route path="/view-profile" element={<ViewProfile />} />
             </Routes>
+            <ToastContainer />
         </BrowserRouter>
     );
 };

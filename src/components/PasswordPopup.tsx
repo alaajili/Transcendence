@@ -1,19 +1,23 @@
 import { useState } from "react";
+import { Joinroominter } from "./PublicChannel";
 
 interface PasswordPopupProps {
     togglePopup: () => void;
-    setPassword: any;
-    handleSave: any;
+    setPopupsave: (val: boolean) => void;
+    setPassword: (val: string) => void;
 }
 
-const PasswordPopup = ({ togglePopup, setPassword, handleSave }: PasswordPopupProps) => {
+const PasswordPopup = ({ togglePopup , setPopupsave, setPassword}: PasswordPopupProps) => {
 
-
+    // Initialize password with roompassword
+    const [password, setpassword] = useState<string>('');
     const handleChange = async (e: any) => {
-        await setPassword(e.target.value);
+        await setpassword(e.target.value);
     };
-
-
+    const handleSave = async () => {
+        setPassword(password);
+        setPopupsave(true);
+    };
     return (
         <div className="pop-up">
             <div className="overlay">

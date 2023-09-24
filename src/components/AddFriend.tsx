@@ -74,7 +74,7 @@ const AddFriend = ({ toggleAddFriendPopup, socket, roomid}: AddFriendProps) => {
             withCredentials: true,
         });
     }
-    useEffect(() => {   
+    useEffect(() => {
         socket?.on("success", () => {
             notify("request sent");
         });

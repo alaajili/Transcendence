@@ -72,7 +72,6 @@ const Dashboard = () => {
     const handleUserClick = (userId: any) => {
         setIsActiveUser(userId === isActiveUser ? null : userId);
     };
-
     // const [userHover, setUserHover] = useState(null);
     // const handleUserHoverEnter = (userId: any) => {
     //     setUserHover(userId);
