@@ -6,6 +6,7 @@ import {
 } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { Socket } from "socket.io-client";
+import { userevents } from "../Pages/Chat";
 
 interface MemberProps {
     username: string;
@@ -18,24 +19,33 @@ interface MemberProps {
 
 const Member = ({ username, img, isAdmin, id, roomid, socket }: MemberProps) => {
     const kickuser = async ()=> {
-        const dto = {
+        const dto: userevents = {
             id: id,
             roomid: roomid,
         }
         const ret = socket?.emit("kickuser", dto, {
             withCredentials: true,
         })
+    }
+
+    const setadmin = async ()=> {
+        const dto: userevents =  {
+            id: id,
+            roomid: roomid,
+        }
+        const ret = socket?.emit("setadmin", dto, {
+            withCredentials: true,
+        })
         console.log(ret);
     }
     const banuser = async ()=> {
-        const dto = {
+        const dto: userevents = {
             id: id,
             roomid: roomid,
         }
         const ret = socket?.emit("banuser", dto, {
             withCredentials: true,
         })
-        console.log(ret);
     }
     return (
         <div className="container-1 flex justify-between items-center p-[.6vw] mt-[.5vw]">
@@ -76,6 +86,7 @@ const Member = ({ username, img, isAdmin, id, roomid, socket }: MemberProps) => 
                         <BsFillLightningChargeFill
                             className="text-[1.5vw] p-1 cursor-pointer"
                             title="set as admin"
+                            onClick = {setadmin}
                         />
                     </button>
                 </div>

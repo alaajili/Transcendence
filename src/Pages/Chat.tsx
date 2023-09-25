@@ -11,6 +11,11 @@ import "../styles/Chat.css";
 import { useNavigate } from "react-router-dom";
 import { alertClasses } from "@mui/material";
 
+export enum classSystemEnum{
+    OWNER = 3,    
+    ADMIN = 2,
+    NORMAL = 1,
+}
 
 interface messagedto {
     message: string;
@@ -37,7 +42,7 @@ interface intermessages {
     isSentByMe: boolean;
     img: string;
 }
-interface kickuser {
+export interface userevents {
     id: number;
     roomid: number;
 }
@@ -260,7 +265,7 @@ const Chat = () => {
                 },
             ]);
         });
-        socket?.on("kick", async (dto: kickuser) => {
+        socket?.on("kick", async (dto: userevents) => {
             if (selectedChannel?.id == dto.roomid) {
                alert("You have been kicked from the room");
                 // location.reload();
@@ -283,14 +288,9 @@ const Chat = () => {
         if (selectedChannel != null) {
             let getmember: any;
             getmember = await getmemeberoom(selectedChannel?.id);
-            const classSystem = new Map<string, number>([
-                ["NORMAL", 0],
-                ["ADMIN", 1],
-                ["OWNER", 2],
-            ]);
             let members: MemberProps[] = [];
             const me: number = await whoami();
-            let mystatus: string;
+            let mystatus: string = 'NORMAL';
             getmember.roomUsers.find((element: any) => {
                 if (element.userId == me) mystatus = element.status;
             });
@@ -303,15 +303,14 @@ const Chat = () => {
                         isAdmin: me != element.id ? true : false,
                         roomid: selectedChannel.id,
                     };
-                    let userclassSystem: string = "NORMAL";
-                    getmember.roomUsers.find((roomuser: any) => {
+                    const userclassSystem = getmember.roomUsers.find((roomuser: { userId: number, status: string }) => {
                         if (roomuser.userId == element.id)
-                            userclassSystem = roomuser.status;
+                            return true
                     });
                     if (
-                        me !== element.id &&
-                        classSystem.get(userclassSystem)! >
-                            classSystem.get(mystatus)!
+                        me !== element.id &&(
+                        classSystemEnum[userclassSystem.status] >
+                        classSystemEnum[mystatus]
                     )
                         newmember.isAdmin = false;
                     members = [...members, newmember];
@@ -320,6 +319,7 @@ const Chat = () => {
             setMember(members);
         }
     };
+    const isadmin: boolean = false;
     useEffect(() => {
         setMembers();
     }, [selectedChannel]);
@@ -406,14 +406,17 @@ const Chat = () => {
                                             )
                                         )}
                                     </li>
-                                    <SocketContext.Provider value={socket}>
-                                    <div className="line absolute bottom[9.5vh]"></div>
-                                    <a onClick={toggleAddFriendPopup}>
+
+                                    <div className="line absolute bottom[9.5vh]">
+                                    </div>
+                                    {isadmin && (
+                                        
+                                        <a onClick={toggleAddFriendPopup}>
                                         <div className="plus-icon w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[4vw] max-md:h-[4vw] rounded-full absolute bottom-[2vh] right-[10vw] max-sm:bottom-[1vh] max-sm:right-[3vw] max-md:bottom-[1vh] max-md:right-[2vw] flex justify-center items-center cursor-pointer">
                                             <FiPlus className="text-[1.2vw] max-sm:text-[2vw] max-md:text-[2vw]" />
                                         </div>
                                     </a>
-                                    </SocketContext.Provider>
+                                        )}
                                 </ul>
                             </div>
                         </div>
