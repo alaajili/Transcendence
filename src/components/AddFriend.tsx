@@ -74,6 +74,7 @@ const AddFriend = ({ toggleAddFriendPopup, socket, roomid}: AddFriendProps) => {
             withCredentials: true,
         });
     }
+    const isadmin: boolean = true;
     useEffect(() => {
         socket?.on("success", () => {
             notify("request sent");
@@ -84,7 +85,8 @@ const AddFriend = ({ toggleAddFriendPopup, socket, roomid}: AddFriendProps) => {
 }, [])
     return (
         <div className="pop-up">
-            <div className="overlay">
+            {isadmin && (
+                <div className="overlay">
                 <div className="pop-up-container">
                     <div className="flex justify-center items-center relative">
                         <div className="add-channel w-[30em] h-[30vw] max-sm:w-[60vw] max-sm:h-[30vw] max-md:w-[60vw] max-md:h-[30vw] max-lg:w-[50vw] max-lg:h-[30vw] max-xl:w-[50vw] max-xl:h-[30vw] text-white font-satoshi flex justify-center items-center py-[5vw] max-sm:py-[2vw] max-md:py-[2vw] max-lg:py-[2vw]">
@@ -137,6 +139,7 @@ const AddFriend = ({ toggleAddFriendPopup, socket, roomid}: AddFriendProps) => {
                     </div>
                 </div>
             </div>
+            )}
             <ToastContainer />
         </div>
     );
