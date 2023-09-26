@@ -14,6 +14,7 @@ import { setOnline, recieveNotification } from "./components/mainGateway";
 import Practice from "./Game/Practice";
 import Spectate from "./Game/Spectate";
 import { ToastContainer } from "react-toastify";
+import Challenge from "./Game/Challenge";
 
 const App = () => {
     setOnline();
@@ -28,6 +29,7 @@ const App = () => {
                 <Route path="/game" element={<Game />} />
                 <Route path="/practice" element={<Practice />} />
                 <Route path="/spectate" element={<Spectate />} />
+                <Route path="/challenge" element={<Challenge />} />
                 <Route path="/home" element={<Dashboard />} />
                 <Route
                     path="/add-channel"
