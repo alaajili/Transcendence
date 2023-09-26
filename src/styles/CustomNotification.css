@@ -1,8 +1,8 @@
-/* CustomNotification.css */
+/* CustomNotification.css
 .custom-notification {
     display: flex;
     align-items: center;
-    background-color: #0a0a0a;
+    background-color: red;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     padding: 12px;
@@ -40,4 +40,4 @@
   .custom-notification button:hover {
     background-color: #0056b3;
   }
-  
+   */

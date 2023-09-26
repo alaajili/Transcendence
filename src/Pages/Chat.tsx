@@ -1,6 +1,5 @@
-import Apollo from "../assets/Apollo.jpg";
 import noChat from "../assets/no-chat.svg";
-import {BsSendFill} from "react-icons/bs";
+import { BsSendFill } from "react-icons/bs";
 import { FiPlus } from "react-icons/fi";
 import React, { useEffect, useRef, useState } from "react";
 import { MessageContainer, AddChannel, Member, AddFriend } from "./index";
@@ -10,10 +9,10 @@ import "../styles/AddChannel.css";
 import "../styles/Chat.css";
 import { useNavigate } from "react-router-dom";
 import { alertClasses } from "@mui/material";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
-export enum classSystemEnum{
-    OWNER = 3,    
+export enum classSystemEnum {
+    OWNER = 3,
     ADMIN = 2,
     NORMAL = 1,
 }
@@ -61,17 +60,17 @@ const Chat = () => {
     };
 
     const notifyofkick = () => {
-        toast('🌬️ you got kicked from this room!', {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: true,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: false,
-        progress: undefined,
-        theme: "dark",
+        toast("🌬️ you got kicked from this room!", {
+            position: "top-center",
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: false,
+            progress: undefined,
+            theme: "dark",
         });
-    }
+    };
     const notifyoferror = (val: string) => {
         toast.error(`✴️ ${val}`, {
             position: "top-right",
@@ -82,8 +81,8 @@ const Chat = () => {
             draggable: true,
             progress: undefined,
             theme: "dark",
-            });
-    }
+        });
+    };
 
     const [showinvite, setShowinvite] = useState(false);
     const handleArrowClick = async () => {
@@ -128,7 +127,7 @@ const Chat = () => {
         } catch (error) {
             console.log(error);
         }
-        await Getmyrooms()
+        await Getmyrooms();
     };
     const [popup, setPopup] = useState(false);
     const [addFriendPopup, setAddFriendPopup] = useState(false);
@@ -175,11 +174,11 @@ const Chat = () => {
                     withCredentials: true,
                 }
             );
-            const room: intersetchannel= {
+            const room: intersetchannel = {
                 name: res.data.name,
                 img: res.data.photo,
                 id: res.data.id,
-                status: 'dm',
+                status: "dm",
             };
             return room;
         } catch {
@@ -192,12 +191,11 @@ const Chat = () => {
         let room: intersetchannel;
         rooms.forEach(async (element: any) => {
             if (element.isdm !== true) {
-                room =  {
+                room = {
                     name: element.name,
                     img: element.photo,
                     id: element.id,
                     status: element.status,
-
                 };
                 newchannel = [...newchannel, room];
                 setChannels(newchannel);
@@ -246,9 +244,9 @@ const Chat = () => {
                                 message: msgs[i].content,
                                 isSentByMe: false,
                                 img:
-                                "http://localhost:3000/" +
-                                msgs[i].senderId +
-                                ".png",
+                                    "http://localhost:3000/" +
+                                    msgs[i].senderId +
+                                    ".png",
                             },
                         ];
                     }
@@ -258,10 +256,8 @@ const Chat = () => {
             }
         }
         getandSetmsgchannel();
-        if(selectedChannel?.status === 'dm')
-            setChallengebutton(true);
-        else
-            setChallengebutton(false);
+        if (selectedChannel?.status === "dm") setChallengebutton(true);
+        else setChallengebutton(false);
     }, [selectedChannel]);
 
     const socketRef = useRef<Socket | null>(null);
@@ -296,15 +292,15 @@ const Chat = () => {
         });
         socket?.on("kick", async (dto: userevents) => {
             if (selectedChannel?.id == dto.roomid) {
-                if (dto.id == await whoami()) {
+                if (dto.id == (await whoami())) {
                     notifyofkick();
                     setSelectedChannel(null);
                 }
             }
         });
-        const ret2 =  socket?.on("error", async (val: string)=> {
+        const ret2 = socket?.on("error", async (val: string) => {
             notifyoferror(val);
-        })
+        });
     }, [selectedChannel]);
     async function getmemeberoom(roomID: number) {
         const res = await axios.get(
@@ -312,9 +308,9 @@ const Chat = () => {
             {
                 withCredentials: true,
             }
-            );
-            return res.data;
-        }
+        );
+        return res.data;
+    }
     const setMembers = async () => {
         if (selectedChannel != null) {
             let getmember: any;
@@ -324,9 +320,9 @@ const Chat = () => {
             let mystatus: classSystemEnum = classSystemEnum.NORMAL;
             const myroomuser = getmember.roomUsers.find((element: any) => {
                 if (element.userId == me) {
-                    mystatus = element.status
-                    return true;   
-                };
+                    mystatus = element.status;
+                    return true;
+                }
             });
             getmember.members.forEach(
                 (element: { username: string; id: number }) => {
@@ -337,21 +333,22 @@ const Chat = () => {
                         isAdmin: me != element.id ? true : false,
                         roomid: selectedChannel.id,
                     };
-                    const userclassSystem = getmember.roomUsers.find((roomuser: { userId: number, status: string }) => {
-                        if (roomuser.userId == element.id)
-                            return true
-                    });
+                    const userclassSystem = getmember.roomUsers.find(
+                        (roomuser: { userId: number; status: string }) => {
+                            if (roomuser.userId == element.id) return true;
+                        }
+                    );
                     if (
                         me !== element.id &&
                         classSystemEnum[userclassSystem.status] >
-                        classSystemEnum[mystatus]
+                            classSystemEnum[mystatus]
                     )
                         newmember.isAdmin = false;
                     members = [...members, newmember];
                 }
             );
-            console.log(myroomuser)
-            if(myroomuser.status === "OWNER" || myroomuser.status === "ADMIN")
+            console.log(myroomuser);
+            if (myroomuser.status === "OWNER" || myroomuser.status === "ADMIN")
                 setShowinvite(true);
             setMember(members);
         }
@@ -360,12 +357,12 @@ const Chat = () => {
     const navigate = useNavigate();
     const sendGameRequest = async () => {
         const me: number = await whoami();
-        member.forEach(mem => {
+        member.forEach((mem) => {
             if (me !== mem.id) {
                 return navigate(`/challenge?opp=${mem.id}`);
             }
         });
-    }
+    };
 
     return (
         <div className="parent flex flex-row justify-center items-center gap-[1vw] h-screen max-sm:flex-col max-md:flex-col">
@@ -424,53 +421,52 @@ const Chat = () => {
                         <h3 className="absolute top-[3vh] max-sm:top-[1.8vh] max-md:top-[1.8vh] font-bold left-[5.5vw] max-sm:left-[11vw] max-md:left-[8vw] text-[1vw] max-sm:text-[2vw] max-md:text-[1.4vw]">
                             {selectedChannel.name}
                         </h3>
-                        { 
-                            !challengebutton ? (
+                        {!challengebutton ? (
                             <div className="menu--right" role="navigation">
-                            <div className="menuToggle relative h-[90vh]">
-                                <input type="checkbox" />
-                                <p className="members-text font-satoshi font-medium uppercase text-[1vw]">
-                                    members
-                                </p>
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                                <ul className="menuItem member-menu absolute w-[30vw] h-[91vh] pt-[3vw] pr-[9vw] pl-[1vw]">
-                                    <li className="overflow-y-scroll no-scrollbar mt-[3.3vh] pb-[2.5vh] h-[72.4vh]">
-                                        {member.map(
-                                            (user: MemberProps, idx) => (
-                                                <Member
-                                                username={user.username}
-                                                img={user.img}
-                                                isAdmin={user.isAdmin}
-                                                id={user.id}
-                                                socket={socket}
-                                                roomid={user.roomid}
-                                                key={idx}
-                                                />
+                                <div className="menuToggle relative h-[90vh]">
+                                    <input type="checkbox" />
+                                    <p className="members-text font-satoshi font-medium uppercase text-[1vw]">
+                                        members
+                                    </p>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <ul className="menuItem member-menu absolute w-[30vw] h-[91vh] pt-[3vw] pr-[9vw] pl-[1vw]">
+                                        <li className="overflow-y-scroll no-scrollbar mt-[3.3vh] pb-[2.5vh] h-[72.4vh]">
+                                            {member.map(
+                                                (user: MemberProps, idx) => (
+                                                    <Member
+                                                        username={user.username}
+                                                        img={user.img}
+                                                        isAdmin={user.isAdmin}
+                                                        id={user.id}
+                                                        socket={socket}
+                                                        roomid={user.roomid}
+                                                        key={idx}
+                                                    />
                                                 )
-                                                )}
-                                    </li>
+                                            )}
+                                        </li>
 
-                                    <div className="line absolute bottom[9.5vh]">
-                                    </div>
-                                    {showinvite && (
-                                        
-                                        <a onClick={toggleAddFriendPopup}>
-                                        <div className="plus-icon w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[4vw] max-md:h-[4vw] rounded-full absolute bottom-[2vh] right-[10vw] max-sm:bottom-[1vh] max-sm:right-[3vw] max-md:bottom-[1vh] max-md:right-[2vw] flex justify-center items-center cursor-pointer">
-                                            <FiPlus className="text-[1.2vw] max-sm:text-[2vw] max-md:text-[2vw]" />
-                                        </div>
-                                    </a>
+                                        <div className="line absolute bottom[9.5vh]"></div>
+                                        {showinvite && (
+                                            <a onClick={toggleAddFriendPopup}>
+                                                <div className="plus-icon w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[4vw] max-md:h-[4vw] rounded-full absolute bottom-[2vh] right-[10vw] max-sm:bottom-[1vh] max-sm:right-[3vw] max-md:bottom-[1vh] max-md:right-[2vw] flex justify-center items-center cursor-pointer">
+                                                    <FiPlus className="text-[1.2vw] max-sm:text-[2vw] max-md:text-[2vw]" />
+                                                </div>
+                                            </a>
                                         )}
-                                </ul>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
-                        ): (<button
-                            className="container-1 absolute top-[2.2vh] right-[2vw] px-[1.5vw] py-[.4vw] uppercase font-bold hover:scale-105 text-[.7vw]"
-                            onClick={sendGameRequest}
+                        ) : (
+                            <button
+                                className="container-1 absolute top-[2.2vh] right-[2vw] px-[1.5vw] py-[.4vw] uppercase font-bold hover:scale-105 text-[.7vw]"
+                                onClick={sendGameRequest}
                             >
-                        challenge
-                    </button>)}
+                                challenge
+                            </button>
+                        )}
                         {addFriendPopup && (
                             <AddFriend
                                 toggleAddFriendPopup={toggleAddFriendPopup}
@@ -536,7 +532,7 @@ const Chat = () => {
             )}
             {popup && (
                 <AddChannel togglePopup={togglePopup} addChannel={addChannel} />
-                )}
+            )}
         </div>
     );
 };

@@ -58,8 +58,6 @@ function Challenge() {
         }
     };
 
-    
-
     useEffect(() => {
         setSocket(io("http://localhost:3000/game", { withCredentials: true }));
     }, []);
@@ -77,12 +75,12 @@ function Challenge() {
         const queryParams = new URLSearchParams(window.location.search);
         let opp = queryParams.get("opp");
         if (opp === null) opp = "0";
-        const oppId: number = +opp
+        const oppId: number = +opp;
 
         socket?.on("inGame", () => {
             console.log("User already in a game");
             navigate(-1);
-        })
+        });
 
         socket?.emit("challenge", oppId);
 
@@ -142,10 +140,10 @@ function Challenge() {
 
     const replay = () => {
         socket?.connect();
-        socket?.emit('join');
+        socket?.emit("join");
         setStarted(false);
         setEndMatch(false);
-    }
+    };
 
     if (endMatch) {
         socket?.disconnect();
