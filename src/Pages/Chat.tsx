@@ -47,6 +47,7 @@ export interface userevents {
     roomid: number;
 }
 const Chat = () => {
+    const [challengebutton, setChallengebutton] = useState(false);
     const [socket, setSocket] = useState<Socket | null>(null);
     const [channels, setChannels] = useState<intersetchannel[]>([]);
     const [inputValue, setInputValue] = useState("");
@@ -70,6 +71,18 @@ const Chat = () => {
         progress: undefined,
         theme: "dark",
         });
+    }
+    const notifyoferror = (val: string) => {
+        toast.error(`✴️ ${val}`, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: false,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            });
     }
 
     const [showinvite, setShowinvite] = useState(false);
@@ -117,8 +130,6 @@ const Chat = () => {
         }
         await Getmyrooms()
     };
-    useEffect( ()=> {
-    }, [selectedChannel]);
     const [popup, setPopup] = useState(false);
     const [addFriendPopup, setAddFriendPopup] = useState(false);
     const togglePopup = () => {
@@ -198,9 +209,6 @@ const Chat = () => {
         });
     };
     useEffect(() => {
-        Getmyrooms();
-    }, [selectedChannel]);
-    useEffect(() => {
         // Scroll to the bottom when a new message is added
         if (messagesContainerRef.current) {
             messagesContainerRef.current.scrollTop =
@@ -210,6 +218,7 @@ const Chat = () => {
 
     //-------------------------------------------casper-------------------------------------//
     useEffect(() => {
+        Getmyrooms();
         async function getandSetmsgchannel() {
             if (selectedChannel !== null) {
                 const id: number = await whoami();
@@ -237,17 +246,22 @@ const Chat = () => {
                                 message: msgs[i].content,
                                 isSentByMe: false,
                                 img:
-                                    "http://localhost:3000/" +
-                                    msgs[i].senderId +
-                                    ".png",
+                                "http://localhost:3000/" +
+                                msgs[i].senderId +
+                                ".png",
                             },
                         ];
                     }
                 }
                 setMessages(messages);
+                setMembers();
             }
         }
         getandSetmsgchannel();
+        if(selectedChannel?.status === 'dm')
+            setChallengebutton(true);
+        else
+            setChallengebutton(false);
     }, [selectedChannel]);
 
     const socketRef = useRef<Socket | null>(null);
@@ -288,8 +302,8 @@ const Chat = () => {
                 }
             }
         });
-        socket?.on("error", async (val: string)=> {
-            alert(val);
+        const ret2 =  socket?.on("error", async (val: string)=> {
+            notifyoferror(val);
         })
     }, [selectedChannel]);
     async function getmemeberoom(roomID: number) {
@@ -340,12 +354,8 @@ const Chat = () => {
             if(myroomuser.status === "OWNER" || myroomuser.status === "ADMIN")
                 setShowinvite(true);
             setMember(members);
-
         }
     };
-    useEffect(() => {
-        setMembers();
-    }, [selectedChannel]);
     return (
         <div className="parent flex flex-row justify-center items-center gap-[1vw] h-screen max-sm:flex-col max-md:flex-col">
             <div className="child-container-1">
@@ -403,8 +413,8 @@ const Chat = () => {
                         <h3 className="absolute top-[3vh] max-sm:top-[1.8vh] max-md:top-[1.8vh] font-bold left-[5.5vw] max-sm:left-[11vw] max-md:left-[8vw] text-[1vw] max-sm:text-[2vw] max-md:text-[1.4vw]">
                             {selectedChannel.name}
                         </h3>
-                        { false ? (
-
+                        { 
+                            !challengebutton ? (
                             <div className="menu--right" role="navigation">
                             <div className="menuToggle relative h-[90vh]">
                                 <input type="checkbox" />
@@ -513,7 +523,6 @@ const Chat = () => {
             {popup && (
                 <AddChannel togglePopup={togglePopup} addChannel={addChannel} />
                 )}
-        <ToastContainer />      
         </div>
     );
 };

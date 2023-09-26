@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { BsLockFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { PasswordPopup } from "../Pages/index";
@@ -28,28 +28,27 @@ const PublicChannel = ({
 }: Room) => {
     const navigate = useNavigate();
     const [password, setPassword] = useState<string>('');
-    const [room, setRoom] = useState<Joinroominter | null>(null);
     const [popupsave, setPopupsave] = useState(false);
-    // const [roompassword, setRoompassword] = useState<string>('');
-    const alreadyjoined = async () => toast.error("You have already joined this room", {
+    const alreadyjoined = () => 
+    {
+        toast.error("You have already joined this room", {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: true,
-        closeOnClick: true,
-        draggable: true,
-        progress: undefined,
-    })
+        closeOnClick: false,
+        draggable: false,
+        theme: "dark",
+        })
+    }
     const joinroom = async (data: Joinroominter) => {
-
         const res = await axios.post(
             "http://localhost:3000/chat/joinroom",
             data,
             {
                 withCredentials: true,
             }
-        );
-        if (res.data.status == 200) {
-            console.log("YOU ARE JOIND THE ROOM")
+            );
+        if (res.data == 200) {
             navigate("/chat");
         }
         else if (res.data.status == 404){
@@ -89,6 +88,7 @@ const PublicChannel = ({
                     </h3>
                 </div>
             </div>
+            <ToastContainer />
 
             <div className="flex items-center justify-between gap-[1vw]">
                 {status == "protected" && <BsLockFill className="text-[1vw]" />}
@@ -99,14 +99,12 @@ const PublicChannel = ({
                             togglePopup()
                         }
                         else {
-                            console.log("HOLLALA")
                             joinroom(data);
                         }
                     }}
                 >
                     join
                 </button>
-                <ToastContainer />
             </div>
             {popup && <PasswordPopup togglePopup={togglePopup} setPopupsave={setPopupsave} setPassword={setPassword} />}
 

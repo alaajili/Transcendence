@@ -140,7 +140,6 @@ const AddFriend = ({ toggleAddFriendPopup, socket, roomid}: AddFriendProps) => {
                 </div>
             </div>
             )}
-            <ToastContainer />
         </div>
     );
 };

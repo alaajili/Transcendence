@@ -22,6 +22,7 @@ const wrongpasswordnotify = () => toast.error(`😫 Wrong password!`, {
     closeOnClick: true,
     pauseOnHover: true,
     draggable: true,
+    theme: "dark",
     });
 
 const setInGame = () => {
