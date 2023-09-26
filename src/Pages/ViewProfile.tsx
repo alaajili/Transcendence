@@ -396,7 +396,7 @@ const ViewProfile = () => {
                             Match History for <strong>{user?.username}</strong>
                         </h3>
                         {games.map((game, index) => (
-                            <MatchCard game={game} index={index} map={map} />
+                            <MatchCard key={index} game={game} index={index} map={map} />
                         ))}
                     </div>
                 </div>

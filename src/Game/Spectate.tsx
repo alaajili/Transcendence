@@ -30,8 +30,6 @@ interface PlayerData {
 }
 
 function Spectate() {
-    const [started, setStarted] = useState<boolean>(false);
-
 
     const [socket, setSocket] = useState<Socket | null>(null);
 
@@ -146,15 +144,6 @@ function Spectate() {
                         No
                     </button>
                 </div>
-            </div>
-        );
-    } else if (!started) {
-        return (
-            <div className="flex flex-col items-center justify-center w-full h-screen absolute">
-                <h2 className="font-bold font-satoshi text-[1.5vw] text-center">
-                    Waiting for a Player to join...
-                </h2>
-                <Lottie animationData={waiting} loop={true} className="w-60" />
             </div>
         );
     }

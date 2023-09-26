@@ -7,7 +7,6 @@ import "../styles/Game.css";
 import waiting from "../assets/waiting.json";
 import Lottie from "lottie-react";
 import { useNavigate } from "react-router-dom";
-import { Props } from "react-apexcharts";
 
 interface Ball {
     x: number;
@@ -73,9 +72,9 @@ function Game() {
     }, []);
 
     useEffect(() => {
-        socket?.on("disconnect", () => {
-            console.log("disconnect from server");
-            navigate("/add-channel")
+        socket?.on("inGame", () => {
+            console.log("User already in a game");
+            navigate('/home')
         })
 
         socket?.emit("join");
@@ -135,6 +134,8 @@ function Game() {
     };
 
     const replay = () => {
+        socket?.connect();
+        socket?.emit('join');
         setStarted(false);
         setEndMatch(false);
     }
