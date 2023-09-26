@@ -46,6 +46,7 @@ const Member = ({ username, img, isAdmin, id, roomid, socket }: MemberProps) => 
         const ret = socket?.emit("banuser", dto, {
             withCredentials: true,
         })
+        
     }
     return (
         <div className="container-1 flex justify-between items-center p-[.6vw] mt-[.5vw]">
