@@ -88,8 +88,6 @@ const PublicChannel = ({
                     </h3>
                 </div>
             </div>
-            <ToastContainer />
-
             <div className="flex items-center justify-between gap-[1vw]">
                 {status == "protected" && <BsLockFill className="text-[1vw]" />}
                 <button

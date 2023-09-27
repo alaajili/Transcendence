@@ -4,6 +4,8 @@ import Challenge from "../Game/Challenge";
 import Apollo from "../assets/Apollo.jpg";
 import React from "react";
 import "../styles/CustomNotification.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const socket = io("http://localhost:3000/user", {
     withCredentials: true,
@@ -21,6 +23,17 @@ const setOffline = () => {
     });
 };
 
+const missingPlayerNotify = () =>
+    toast(`😫 Opps, Your opponent is missing!`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+});
+
 const wrongpasswordnotify = () =>
     toast.error(`😫 Wrong password!`, {
         position: "top-right",
@@ -35,17 +48,32 @@ const wrongpasswordnotify = () =>
 interface NotificationData {
     senderName: string;
     // gameName: string;
-    // senderPhoto: string;
+    senderPhoto: string;
+    senderId: number
+    // onAccept: () => void;
+    // onDecline: () => void;
 }
+
+
 
 const CustomNotification: React.FC<NotificationData> = ({
     senderName,
+    senderPhoto,
+    senderId,
 }) => {
+
+    const navigate  = useNavigate()
+
+    const accept = () => {
+        toast.dismiss();
+        navigate(`/challenge?opp=${senderId}&num=2`);
+    }
+
     return (
         <div className="container-1 px-[1.5vw] py-[1vw] flex flex-col gap-[1.2vw] w-full">
             <div className="flex items-center justify-center gap-[1vw]">
                 <img
-                    src={Apollo}
+                    src={senderPhoto}
                     alt="Avatar"
                     className="w-[3.5vw] h-[3.5vw] rounded-full"
                 />
@@ -59,7 +87,10 @@ const CustomNotification: React.FC<NotificationData> = ({
                 <button className="hover:scale-105 text-white font-bold font-satoshi w-[10vw] h-[3vw] container-1 text-[1vw]">
                     Naaah, I'm Good
                 </button>
-                <button className="hover:scale-105 text-white font-bold font-satoshi w-[10vw] h-[3vw] container-1 text-[1vw]">
+                <button
+                    onClick={accept}
+                    className="hover:scale-105 text-white font-bold font-satoshi w-[10vw] h-[3vw] container-1 text-[1vw]"
+                >
                     Yeah, Why Not
                 </button>
             </div>
@@ -67,8 +98,14 @@ const CustomNotification: React.FC<NotificationData> = ({
     );
 };
 
-const gameRequestNotify = (username: string) =>
-    toast(<CustomNotification senderName={`${username}`} />, {
+const gameRequestNotify = (username: string, photo: string, id: number) =>
+    toast(<CustomNotification
+        senderName={username}
+        senderPhoto={photo} 
+        senderId={id}
+        // onAccept={() => accept(id)}
+
+    />, {
         position: "top-left",
         autoClose: 20000,
         hideProgressBar: true,
@@ -90,10 +127,19 @@ const recieveNotification = () => {
     socket?.on("wrongpassword", () => {
         wrongpasswordnotify();
     });
-    socket?.on("challenge", (data) => {
+    socket?.on("challenge", (data: number) => {
         console.log("Challenge user: ", data);
-        gameRequestNotify("alaajili");
+        axios.get(
+            `http://localhost:3000/users/userinfos?id=${data}`,
+            { withCredentials: true }
+        ).then((res) => {
+            const data = res.data;
+            gameRequestNotify(data.username, data.photo, data.id)
+        })
     });
+    socket.on('out', () => {
+        missingPlayerNotify();
+    })
 };
 
 export { setOnline, recieveNotification };

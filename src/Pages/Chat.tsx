@@ -359,7 +359,7 @@ const Chat = () => {
         const me: number = await whoami();
         member.forEach((mem) => {
             if (me !== mem.id) {
-                return navigate(`/challenge?opp=${mem.id}`);
+                return navigate(`/challenge?opp=${mem.id}&num=1`);
             }
         });
     };

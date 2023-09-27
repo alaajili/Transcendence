@@ -75,14 +75,20 @@ function Challenge() {
         const queryParams = new URLSearchParams(window.location.search);
         let opp = queryParams.get("opp");
         if (opp === null) opp = "0";
-        const oppId: number = +opp;
+        let n = queryParams.get("num");
+        if (n === null) n = "0";
 
+        const num: number = +n
+        const oppId: number = +opp;
+        console.log('num === ', num);
         socket?.on("inGame", () => {
             console.log("User already in a game");
             navigate(-1);
         });
-
-        socket?.emit("challenge", oppId);
+        if (num === 1)
+            socket?.emit("challenge", oppId);
+        else if (num === 2)
+            socket?.emit("acceptChallenge", oppId);
 
         socket?.on("join_room", (obj: any) => {
             console.log("JOINING ROOM ...");
@@ -123,6 +129,10 @@ function Challenge() {
         socket?.on("endMatch", () => {
             setEndMatch(true);
         });
+
+        socket?.on('out', () => {
+            navigate(-1);
+        })
 
         return () => {
             socket?.off("update");
@@ -175,7 +185,7 @@ function Challenge() {
         return (
             <div className="flex flex-col items-center justify-center w-full h-screen absolute">
                 <h2 className="font-bold font-satoshi text-[1.5vw] text-center">
-                    Waiting for a Player to join...
+                    Waiting your opponent to accept your challenge...
                 </h2>
                 <Lottie animationData={waiting} loop={true} className="w-60" />
             </div>
