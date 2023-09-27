@@ -7,6 +7,7 @@ import "../styles/Game.css";
 import waiting from "../assets/waiting.json";
 import Lottie from "lottie-react";
 import { useNavigate } from "react-router-dom";
+import Apollo from "../assets/Apollo.jpg"
 
 interface Ball {
     x: number;
@@ -173,6 +174,28 @@ function Game() {
                     Waiting for a Player to join...
                 </h2>
                 <Lottie animationData={waiting} loop={true} className="w-60" />
+                <div className="container-1 px-[1.5vw] py-[1vw] flex flex-col gap-[1.2vw]">
+            <div className="flex items-center justify-center gap-[1vw]">
+                <img
+                    src={Apollo}
+                    alt="Avatar"
+                    className="w-[3.5vw] h-[3.5vw] rounded-full"
+                />
+                <h3 className="font-satoshi font-medium text-[1vw] leading-7">
+                    gggg wants to play a game with you!
+                    <br />
+                    <strong>Would you like to play?</strong>
+                </h3>
+            </div>
+            <div className="flex items-center justify-between px[2vw] gap-[1vw]">
+                <button className="hover:scale-105 text-white font-bold font-satoshi w-[10vw] h-[3vw] container-1 text-[1vw]">
+                    Naaah, I'm Good
+                </button>
+                <button className="hover:scale-105 text-white font-bold font-satoshi w-[10vw] h-[3vw] container-1 text-[1vw]">
+                    Yeah, Why Not
+                </button>
+            </div>
+        </div>
             </div>
         );
     }

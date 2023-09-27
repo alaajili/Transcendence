@@ -38,11 +38,11 @@ interface NotificationData {
     // senderPhoto: string;
 }
 
-export const CustomNotification: React.FC<NotificationData> = ({
+const CustomNotification: React.FC<NotificationData> = ({
     senderName,
 }) => {
     return (
-        <div className="container-1 px-[1.5vw] py-[1vw] flex flex-col gap-[1.2vw]">
+        <div className="container-1 px-[1.5vw] py-[1vw] flex flex-col gap-[1.2vw] w-full">
             <div className="flex items-center justify-center gap-[1vw]">
                 <img
                     src={Apollo}
@@ -68,12 +68,13 @@ export const CustomNotification: React.FC<NotificationData> = ({
 };
 
 const gameRequestNotify = (username: string) =>
-    toast.info(<CustomNotification senderName={`${username}`} />, {
-        position: "top-center",
+    toast(<CustomNotification senderName={`${username}`} />, {
+        position: "top-left",
         autoClose: 20000,
         hideProgressBar: true,
         draggable: true,
         theme: "dark",
+        className:"w-[28vw] flex items-center justify-center"
     });
 
 const setInGame = () => {

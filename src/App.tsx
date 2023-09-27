@@ -44,12 +44,12 @@ const App = () => {
                             }): void {
                                 throw new Error("Function not implemented.");
                             }}
-                        />
-                    }
+                            />
+                        }
                 />
                 <Route path="/view-profile" element={<ViewProfile />} />
             </Routes>
-            <ToastContainer />
+                        <ToastContainer />
         </BrowserRouter>
     );
 };
