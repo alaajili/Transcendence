@@ -1,4 +1,3 @@
-import Apollo from "../assets/Apollo.jpg";
 import noChat from "../assets/no-chat.svg";
 import { BsBoxArrowInLeft, BsFillTrash3Fill, BsSendFill } from "react-icons/bs";
 import { FiPlus } from "react-icons/fi";
@@ -10,7 +9,7 @@ import "../styles/AddChannel.css";
 import "../styles/Chat.css";
 import { useNavigate } from "react-router-dom";
 import { alertClasses } from "@mui/material";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 export enum classSystemEnum {
   OWNER = 3,

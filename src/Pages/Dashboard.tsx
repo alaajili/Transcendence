@@ -19,8 +19,6 @@ import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import "../styles/Dashboard.css";
 
-import Apollo from "../assets/Apollo.jpg";
-
 interface User {
     id: number;
     username: string;
@@ -214,29 +212,31 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchRooms = async () => {
             try {
-                const res = await axios.get("http://localhost:3000/chat/getallrooms", {
-                    withCredentials: true,
-                })
+                const res = await axios.get(
+                    "http://localhost:3000/chat/getallrooms",
+                    {
+                        withCredentials: true,
+                    }
+                );
                 const rooms = res.data;
                 let setrooms: room[] = [];
                 rooms.forEach((element: room) => {
                     setrooms = [
                         ...setrooms,
                         {
-                          id: element.id,
-                          photo: element.photo,
-                          members_size: element.members_size,
-                          name: element.name,
-                          state: element.state,
+                            id: element.id,
+                            photo: element.photo,
+                            members_size: element.members_size,
+                            name: element.name,
+                            state: element.state,
                         },
-                      ]});
+                    ];
+                });
                 setRooms(setrooms);
-            } catch (error) {
-
-            }
-        }
+            } catch (error) {}
+        };
         fetchRooms();
-    }, [])
+    }, []);
 
     return (
         <div className="my-[1vw] max-sm:my-[2vw] flex flex-col">
@@ -361,10 +361,11 @@ const Dashboard = () => {
                                         alt="friend-pic"
                                     />
                                     <span
-                                        className={`rounded-full ${friend.online
+                                        className={`rounded-full ${
+                                            friend.online
                                                 ? "bg-green-400"
                                                 : "bg-gray-400"
-                                            } w-[0.5vw] h-[0.5vw] max-sm:w-[.8vw] max-sm:h-[.8vw] absolute top-0 right-0`}
+                                        } w-[0.5vw] h-[0.5vw] max-sm:w-[.8vw] max-sm:h-[.8vw] absolute top-0 right-0`}
                                     ></span>
                                 </div>
                                 {isHovered == index && (

@@ -33,7 +33,7 @@ const Profile = () => {
         axios
             .get("http://localhost:3000/users/me", { withCredentials: true })
             .then((res) => {
-                const data: Data = {
+                const _data: Data = {
                     photo: res.data.photo,
                     username: res.data.username,
                     fullname: `${res.data.firstname} ${res.data.lastname}`,
@@ -43,7 +43,7 @@ const Profile = () => {
                     linkedin: "",
                     instagram: "",
                 };
-                setData(data);
+                setData(_data);
             });
     }, []);
 

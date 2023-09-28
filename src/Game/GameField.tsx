@@ -1,7 +1,5 @@
 import { Sketch, SketchProps } from "@p5-wrapper/react";
 
-
-
 interface Ball {
     x: number;
     y: number;
@@ -28,7 +26,6 @@ const GameField: Sketch<GameProps> = (p5: any) => {
 
     let scale = 1;
 
-    
     p5.updateWithProps = (props: GameProps) => {
         leftPlayerY = props.leftPlayerY;
         rightPlayerY = props.rightPlayerY;

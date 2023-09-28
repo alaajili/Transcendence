@@ -6,7 +6,8 @@ import axios from "axios";
 import "../styles/Game.css";
 import waiting from "../assets/waiting.json";
 import Lottie from "lottie-react";
-import Apollo from "../assets/Apollo.jpg"
+import Apollo from "../assets/Apollo.jpg";
+import { CustomNotification } from "../components/mainGateway";
 
 interface Ball {
     x: number;
