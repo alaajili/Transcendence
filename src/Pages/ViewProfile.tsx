@@ -239,6 +239,15 @@ const ViewProfile = () => {
         );
         getUserInfo();
     }
+    const blockuser = async () => {
+        await axios.post(
+            "http://localhost:3000/users/blockuser",
+            {
+                id: user?.id,
+            },
+            { withCredentials: true }
+        );
+    }
 
     return (
         <div className="parent flex justify-center items-center h-screen gap-[1vw] max-sm:gap-[3vw] max-sm:flex-col max-md:flex-col max-md:my-[2vh]">
@@ -322,8 +331,9 @@ const ViewProfile = () => {
                             to="/chat"
                             className="btn-3 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
                         >
-                            <span className="block absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
-                                Block
+                            <span className="block absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]"
+                                onClick={blockuser}
+                            >
                                 <br />
                                 {user?.username}
                             </span>
