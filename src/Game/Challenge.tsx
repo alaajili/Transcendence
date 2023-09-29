@@ -174,7 +174,7 @@ function Challenge() {
 
                     <button
                         className="hover:scale-105 text-white font-bold font-satoshi w-[10vw] h-[3vw] container-1 text-[1vw]"
-                        onClick={() => navigate("/home")}
+                        onClick={() => navigate(-1)}
                     >
                         No
                     </button>

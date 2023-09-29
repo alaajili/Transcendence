@@ -216,6 +216,30 @@ const ViewProfile = () => {
         getUserInfo();
     };
 
+    const cancelFriendRequest = async () => {
+        await axios.post(
+            "http://localhost:3000/users/cancelfriendrequest",
+            {
+                id: friendShipId,
+                response: false,
+            },
+            { withCredentials: true }
+        );
+        getUserInfo();
+    }
+
+    const removeFriend = async () => {
+        await axios.post(
+            "http://localhost:3000/users/removefriend",
+            {
+                id: friendShipId,
+                response: false,
+            },
+            { withCredentials: true }
+        );
+        getUserInfo();
+    }
+
     return (
         <div className="parent flex justify-center items-center h-screen gap-[1vw] max-sm:gap-[3vw] max-sm:flex-col max-md:flex-col max-md:my-[2vh]">
             <div className="child-container-1">
@@ -224,7 +248,7 @@ const ViewProfile = () => {
                         {friendStatus === FriendStatus.FRIENDS ? (
                             <button
                                 className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
-                                onClick={addFriend}
+                                onClick={removeFriend}
                             >
                                 <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
                                     remove
@@ -236,7 +260,7 @@ const ViewProfile = () => {
                         ) : friendStatus === FriendStatus.PENDING_SENT ? (
                             <button
                                 className="btn-1 w-[3vw] h-[3vw] max-sm:w-[5vw] max-sm:h-[5vw] max-md:w-[5vw] max-md:h-[5vw] rounded-full flex justify-center items-center cursor-pointer container-1"
-                                onClick={addFriend}
+                                onClick={cancelFriendRequest}
                             >
                                 <span className="add absolute -top-[2.5vw] font-satoshi text-white font-bold text-[.6vw] max-sm:text-[1.2vw] max-sm:-top-[4vw] max-md:text-[1vw] max-md:-top-[4vw]">
                                     remove friend request
