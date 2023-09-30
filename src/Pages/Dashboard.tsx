@@ -80,6 +80,7 @@ const Dashboard = () => {
 
     const [users, setUsers] = useState<User[]>([]);
     const [query, setQuery] = useState("");
+    const [notifications, setNotifications] = useState([]);
     const searchContainerRef = useRef<HTMLDivElement | null>(null);
 
     const [friends, setFriends] = useState<Friend[]>([]);
@@ -174,6 +175,22 @@ const Dashboard = () => {
                         ...prevFriends,
                         ...newFriends,
                     ]);
+                });
+        } catch (error) {
+            console.error("Error fetching friends:", error);
+        }
+    }, []);
+
+    useEffect(() => {
+        try {
+            axios
+                .get("http://localhost:3000/users/me/getnotifications", {
+                    withCredentials: true,
+                })
+                .then((res) => {
+                    console.log(res.data);
+                    const newNotifications = res.data;
+                    setNotifications(newNotifications);
                 });
         } catch (error) {
             console.error("Error fetching friends:", error);
@@ -298,7 +315,7 @@ const Dashboard = () => {
                     </div>
                     <div className="iconBtn">
                         <BsFillBellFill className="hover:scale-110 text-[.8vw] max-sm:text-[1.2vh] max-md:text-[1.2vh] max-lg:text-[1.2vh]" />
-                        <Notifications />
+                        <Notifications notifications={notifications}/>
                     </div>
                     <div className="iconBtn user-btn">
                         <BsFillPersonFill className="hover:scale-110 text-[.8vw] max-sm:text-[1.2vh] max-md:text-[1.2vh] max-lg:text-[1.2vh]" />

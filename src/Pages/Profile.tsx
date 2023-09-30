@@ -39,9 +39,9 @@ const Profile = () => {
                     fullname: `${res.data.firstname} ${res.data.lastname}`,
                     bio: res.data.bio,
                     online: res.data.online,
-                    github: "",
-                    linkedin: "",
-                    instagram: "",
+                    github: res.data.github,
+                    linkedin: res.data.linkedin,
+                    instagram: res.data.instagram,
                 };
                 setData(_data);
             });
